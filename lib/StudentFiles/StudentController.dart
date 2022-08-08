@@ -15,7 +15,7 @@ class StudentController extends GetxController {
   void getDefinedCourses() async {
     var definedCoursesListTile = [];
 
-    definedCourses
+    definedCoursesmast
         .where('startDate', isGreaterThan: DateTime.now())
         .get()
         .then((value) {
