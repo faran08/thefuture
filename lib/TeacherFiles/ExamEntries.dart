@@ -94,7 +94,8 @@ class ExamEntries extends StatelessWidget {
                   tagValues.clear();
                 },
                 builder: ((context) {
-                  return SingleChildScrollView(
+                  return SafeArea(
+                      child: SingleChildScrollView(
                     child: Container(
                       decoration: BoxDecoration(color: backGroundColor),
                       child: Padding(
@@ -516,11 +517,12 @@ class ExamEntries extends StatelessWidget {
                             )),
                       ),
                     ),
-                  );
+                  ));
                 }),
                 enableDrag: false,
                 animationController: null,
               ),
+              ignoreSafeArea: false,
               isScrollControlled: true,
               enableDrag: false,
             ).whenComplete(() {

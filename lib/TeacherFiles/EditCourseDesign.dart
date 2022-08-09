@@ -186,9 +186,9 @@ class EditDesignCourse extends StatelessWidget {
                                             'publishStatus': true
                                           }).then((value) {
                                             EasyLoading.dismiss();
-                                            Get.close(2);
                                             teacherHomePageController
                                                 .getJoinedCourses();
+                                            Get.close(2);
                                             teacherHomePageController.update();
                                           }).onError((error, stackTrace) {
                                             EasyLoading.dismiss();
@@ -365,22 +365,20 @@ class EditDesignCourse extends StatelessWidget {
                                 .millisecondsSinceEpoch)
                         .add(Duration(days: index))
                         .isAfter(DateTime.now())) {
-                      if (getCurrentDayActivity(
-                                  DateTime.fromMillisecondsSinceEpoch(
-                                          ((documentData.data()
-                                                      as Map)['startDate']
-                                                  as Timestamp)
-                                              .millisecondsSinceEpoch)
-                                      .add(Duration(days: index))) ==
+                      if (getCurrentDayActivity(DateTime.fromMillisecondsSinceEpoch(
+                                      ((documentData.data() as Map)['startDate'] as Timestamp)
+                                          .millisecondsSinceEpoch)
+                                  .add(Duration(days: index))) ==
                               'Data Entry' ||
+                          getCurrentDayActivity(DateTime.fromMillisecondsSinceEpoch(
+                                      ((documentData.data() as Map)['startDate'] as Timestamp)
+                                          .millisecondsSinceEpoch)
+                                  .add(Duration(days: index))) ==
+                              'Empty' ||
                           getCurrentDayActivity(
-                                  DateTime.fromMillisecondsSinceEpoch(
-                                          ((documentData.data()
-                                                      as Map)['startDate']
-                                                  as Timestamp)
-                                              .millisecondsSinceEpoch)
+                                  DateTime.fromMillisecondsSinceEpoch(((documentData.data() as Map)['startDate'] as Timestamp).millisecondsSinceEpoch)
                                       .add(Duration(days: index))) ==
-                              'Empty') {
+                              'Course Start') {
                         Get.to(EntryDefinition(
                                 originalDocument: documentData,
                                 currentDate:

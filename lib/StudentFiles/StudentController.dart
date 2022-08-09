@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -14,11 +15,13 @@ class StudentController extends GetxController {
 
   void getDefinedCourses() async {
     var definedCoursesListTile = [];
+    EasyLoading.show();
 
-    definedCoursesmast
+    definedCourses
         .where('startDate', isGreaterThan: DateTime.now())
         .get()
         .then((value) {
+      EasyLoading.dismiss();
       for (var element in value.docs) {
         definedCoursesListTile.add(ListTile(
             onTap: () {
@@ -464,6 +467,16 @@ class StudentController extends GetxController {
             return definedCoursesListTile[index];
           }));
       update();
+    }).onError((error, stackTrace) {
+      EasyLoading.dismiss();
+      Fluttertoast.showToast(
+          msg: 'Error: ' + error.toString(),
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.grey,
+          textColor: Colors.black,
+          fontSize: 16.0);
     });
   }
 }
