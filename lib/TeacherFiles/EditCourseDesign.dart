@@ -24,6 +24,8 @@ class EditDesignCourse extends StatelessWidget {
       FirebaseFirestore.instance.collection('designedCourses');
   CollectionReference definedCourses =
       FirebaseFirestore.instance.collection('definedCourses');
+  CollectionReference entries =
+      FirebaseFirestore.instance.collection('Entries');
   Map definedCourseData = {};
   List<int> recordAvailable = [];
   List<Map> customDefinedData = [];
@@ -42,6 +44,7 @@ class EditDesignCourse extends StatelessWidget {
     Map temp = documentData.data() as Map;
     definedCourses.doc(temp['fatherID']).get().then((value) {
       definedCourseData = value.data() as Map;
+      definedCourseData['ID'] = value.id;
       teacherHomePageController.update();
     });
   }
@@ -68,15 +71,11 @@ class EditDesignCourse extends StatelessWidget {
   void getCustomDefinationData() async {
     recordAvailable.clear();
     customDefinedData.clear();
-    designedCourses
-        .doc(documentData.id)
-        .collection('Entries')
-        .get()
-        .then((value) {
+    entries.where('designURL', isEqualTo: documentData.id).get().then((value) {
       for (var element in value.docs) {
         customDefinedData.add({'data': element.data(), 'id': element.id});
         recordAvailable.add(DateTime.fromMillisecondsSinceEpoch(
-                ((element.data())['dateForWhichURL'] as Timestamp)
+                ((element.data() as Map)['dateForWhichURL'] as Timestamp)
                     .millisecondsSinceEpoch)
             .day);
       }
@@ -381,6 +380,7 @@ class EditDesignCourse extends StatelessWidget {
                               'Course Start') {
                         Get.to(EntryDefinition(
                                 originalDocument: documentData,
+                                defineDocument: definedCourseData,
                                 currentDate:
                                     DateTime.fromMillisecondsSinceEpoch(
                                             ((documentData.data()
@@ -395,6 +395,7 @@ class EditDesignCourse extends StatelessWidget {
                       } else {
                         Get.to(ExamEntries(
                                 originalDocument: documentData,
+                                defineDocument: definedCourseData,
                                 currentDate:
                                     DateTime.fromMillisecondsSinceEpoch(
                                             ((documentData.data()

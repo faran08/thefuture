@@ -8,6 +8,8 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:thefuture/StudentFiles/AvailableCourses.dart';
 import 'package:thefuture/StudentFiles/StudentController.dart';
+import 'package:thefuture/StudentFiles/StudentJoinedCourses.dart';
+import 'package:thefuture/TeacherFiles/JoinedCourses.dart';
 import 'package:thefuture/globals.dart';
 
 import '../LoginFiles/mainPage.dart';
@@ -111,6 +113,42 @@ class StudentMainPage extends StatelessWidget {
                       ],
                     )),
               ),
+              Padding(
+                padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                child: TextButton(
+                    style: TextButton.styleFrom(
+                        backgroundColor: buttonColor,
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        shadowColor: backGroundColor,
+                        padding: EdgeInsets.fromLTRB(10, 20, 10, 20)),
+                    onPressed: () {
+                      Get.to(StudentJoinedCourses());
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                          child: Icon(
+                            Icons.event_available_rounded,
+                            color: textColor,
+                            size: 30,
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
+                          child: AutoSizeText(
+                            'Joined Courses',
+                            minFontSize: 20,
+                            style: GoogleFonts.poppins(
+                                color: textColor, fontWeight: FontWeight.w600),
+                          ),
+                        )
+                      ],
+                    )),
+              )
             ],
           ),
         ),

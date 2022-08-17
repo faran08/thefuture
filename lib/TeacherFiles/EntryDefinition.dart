@@ -19,9 +19,13 @@ import '../globals.dart';
 
 class EntryDefinition extends StatelessWidget {
   QueryDocumentSnapshot<Object?> originalDocument;
+  Map defineDocument;
   DateTime currentDate;
   EntryDefinition(
-      {Key? key, required this.originalDocument, required this.currentDate})
+      {Key? key,
+      required this.originalDocument,
+      required this.currentDate,
+      required this.defineDocument})
       : super(key: key);
 
   final TeacherHomePageController teacherHomePageController =
@@ -29,6 +33,8 @@ class EntryDefinition extends StatelessWidget {
 
   CollectionReference designedCourses =
       FirebaseFirestore.instance.collection('designedCourses');
+  CollectionReference entries =
+      FirebaseFirestore.instance.collection('Entries');
   late var fToast;
 
   final TextEditingController _enterURL = TextEditingController();
@@ -53,19 +59,18 @@ class EntryDefinition extends StatelessWidget {
 
   void getAvailableEntries() {
     allDateEntries.clear();
-    designedCourses
-        .doc(originalDocument.id)
-        .collection('Entries')
+    entries
         .where('dateForWhichURL',
             isGreaterThanOrEqualTo:
                 DateTime(currentDate.year, currentDate.month, currentDate.day))
         .where('dateForWhichURL',
             isLessThanOrEqualTo: DateTime(
                 currentDate.year, currentDate.month, currentDate.day, 24))
+        .where('designURL', isEqualTo: originalDocument.id)
         .snapshots()
         .forEach((element) {
       for (var item in element.docs) {
-        allDateEntries.add(item.data());
+        allDateEntries.add(item.data() as Map);
       }
       teacherHomePageController.update();
     });
@@ -352,10 +357,10 @@ class EntryDefinition extends StatelessWidget {
                                           if (globalKey.currentState!
                                               .validate()) {
                                             EasyLoading.show();
-                                            designedCourses
-                                                .doc(originalDocument.id)
-                                                .collection('Entries')
-                                                .add({
+                                            entries.add({
+                                              'userName': globalUserName,
+                                              'defineURL': defineDocument['ID'],
+                                              'designURL': originalDocument.id,
                                               'URL': _enterURL.text,
                                               'entryType': _enterType.text,
                                               'entryDescription':

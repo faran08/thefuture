@@ -10,7 +10,7 @@ class AvailableCoursesStudent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    studentController.getDefinedCourses();
+    studentController.getDefinedCourses(context);
     return SafeArea(
         child: Scaffold(
             appBar: AppBar(

@@ -340,6 +340,15 @@ class MainPage extends StatelessWidget {
                                         child: Icon(FontAwesomeIcons
                                             .circleExclamation)),
                                     '${Get.find<StudentNameController>().studentName} Login Error'));
+                          }).timeout(Duration(seconds: 5), onTimeout: () {
+                            EasyLoading.dismiss();
+                            fToast.init(context);
+                            fToast.showToast(
+                                child: getToast(
+                                    JelloIn(
+                                        child: Icon(FontAwesomeIcons
+                                            .circleExclamation)),
+                                    'Connection Timeout'));
                           });
                         },
                         child: Row(

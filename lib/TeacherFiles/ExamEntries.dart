@@ -18,8 +18,12 @@ import 'package:thefuture/globals.dart';
 class ExamEntries extends StatelessWidget {
   QueryDocumentSnapshot<Object?> originalDocument;
   DateTime currentDate;
+  Map defineDocument;
   ExamEntries(
-      {Key? key, required this.originalDocument, required this.currentDate})
+      {Key? key,
+      required this.originalDocument,
+      required this.currentDate,
+      required this.defineDocument})
       : super(key: key);
 
   final TeacherHomePageController teacherHomePageController =
@@ -27,6 +31,8 @@ class ExamEntries extends StatelessWidget {
 
   CollectionReference designedCourses =
       FirebaseFirestore.instance.collection('designedCourses');
+  CollectionReference entries =
+      FirebaseFirestore.instance.collection('Entries');
   late var fToast;
   List<Map> allDateEntries = [];
   final TextEditingController _questionStatement = TextEditingController();
@@ -50,9 +56,8 @@ class ExamEntries extends StatelessWidget {
 
   void getAvailableEntries() {
     allDateEntries.clear();
-    designedCourses
-        .doc(originalDocument.id)
-        .collection('Entries')
+    entries
+        .where('designURL', isEqualTo: originalDocument.id)
         .where('dateForWhichURL',
             isGreaterThanOrEqualTo:
                 DateTime(currentDate.year, currentDate.month, currentDate.day))
@@ -62,7 +67,7 @@ class ExamEntries extends StatelessWidget {
         .snapshots()
         .forEach((element) {
       for (var item in element.docs) {
-        allDateEntries.add(item.data());
+        allDateEntries.add(item.data() as Map);
       }
       teacherHomePageController.update();
     });
@@ -437,10 +442,12 @@ class ExamEntries extends StatelessWidget {
                                             if (_correctAnswer
                                                 .text.isNotEmpty) {
                                               EasyLoading.show();
-                                              designedCourses
-                                                  .doc(originalDocument.id)
-                                                  .collection('Entries')
-                                                  .add({
+                                              entries.add({
+                                                'userID': globalUserName,
+                                                'defineURL':
+                                                    defineDocument['ID'],
+                                                'designURL':
+                                                    originalDocument.id,
                                                 'questionStatement':
                                                     _questionStatement.text,
                                                 'optionOne': _optionOne.text,
@@ -452,7 +459,8 @@ class ExamEntries extends StatelessWidget {
                                                     _correctAnswer.text,
                                                 'tags': tagValues,
                                                 'dateForWhichURL': currentDate,
-                                                'saveDate': DateTime.now()
+                                                'saveDate': DateTime.now(),
+                                                'entryType': 'Exam'
                                               }).then((value) {
                                                 getAvailableEntries();
                                                 fToast.showToast(

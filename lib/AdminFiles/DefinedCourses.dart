@@ -17,7 +17,7 @@ class DefinedCourses extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    adminStateControllers.getDefinedCourses();
+    adminStateControllers.getDefinedCourses(context);
     return SafeArea(
         child: Scaffold(
       backgroundColor: backGroundColor,
