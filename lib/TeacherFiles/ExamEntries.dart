@@ -28,7 +28,7 @@ class ExamEntries extends StatelessWidget {
 
   final TeacherHomePageController teacherHomePageController =
       Get.put(TeacherHomePageController());
-
+  double sliderValue = 10.0;
   CollectionReference designedCourses =
       FirebaseFirestore.instance.collection('designedCourses');
   CollectionReference entries =
@@ -42,6 +42,7 @@ class ExamEntries extends StatelessWidget {
   final TextEditingController _optionThree = TextEditingController();
   final TextEditingController _optionFour = TextEditingController();
   final TextEditingController _correctAnswer = TextEditingController();
+  final TextEditingController _difficultyLevel = TextEditingController();
   List<String> tagValues = [];
   GlobalKey<FormState> formKey = GlobalKey();
 
@@ -51,6 +52,26 @@ class ExamEntries extends StatelessWidget {
       return true;
     } else {
       return false;
+    }
+  }
+
+  String getCorrectAnswerString(String input, String questionOne,
+      String questionTwo, String questionThree, String questionFour) {
+    switch (input) {
+      case 'ONE':
+        return questionOne;
+        break;
+      case 'TWO':
+        return questionTwo;
+        break;
+      case 'THREE':
+        return questionThree;
+        break;
+      case 'FOUR':
+        return questionFour;
+        break;
+      default:
+        return '';
     }
   }
 
@@ -117,6 +138,61 @@ class ExamEntries extends StatelessWidget {
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold),
                                 ),
+                                Padding(
+                                  padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                  child: Text(
+                                    'Time For Question (secs)',
+                                    style: GoogleFonts.poppins(
+                                        color: textColor,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                GetBuilder<TeacherHomePageController>(
+                                    builder: (_) {
+                                  return Slider(
+                                      min: 10.0,
+                                      max: 120,
+                                      activeColor: textColor,
+                                      value: sliderValue,
+                                      onChanged: ((value) {
+                                        sliderValue = (value).ceil().toDouble();
+                                        teacherHomePageController.update();
+                                      }));
+                                }),
+                                GetBuilder<TeacherHomePageController>(
+                                    builder: (_) {
+                                  return Padding(
+                                      padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
+                                      child: Center(
+                                        child: Text(sliderValue.toString(),
+                                            style: GoogleFonts.poppins(
+                                                color: textColor,
+                                                fontSize: 30,
+                                                fontWeight: FontWeight.bold)),
+                                      ));
+                                }),
+                                Padding(
+                                  padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                  child: Text(
+                                    'Difficulty Level',
+                                    style: GoogleFonts.poppins(
+                                        color: textColor,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                SelectGroupCard(context, titles: const [
+                                  'Hard',
+                                  'Semi Hard',
+                                  'Normal',
+                                  'Average',
+                                  'Low Average',
+                                  'Below Average'
+                                ], onTap: (title) {
+                                  debugPrint(title);
+                                  _difficultyLevel.text = title;
+                                }),
                                 Padding(
                                   padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
                                   child: Text(
@@ -448,6 +524,8 @@ class ExamEntries extends StatelessWidget {
                                                     defineDocument['ID'],
                                                 'designURL':
                                                     originalDocument.id,
+                                                'difficultyLevel':
+                                                    _difficultyLevel.text,
                                                 'questionStatement':
                                                     _questionStatement.text,
                                                 'optionOne': _optionOne.text,
@@ -456,11 +534,17 @@ class ExamEntries extends StatelessWidget {
                                                     _optionThree.text,
                                                 'optionFour': _optionFour.text,
                                                 'correctAnswer':
-                                                    _correctAnswer.text,
+                                                    getCorrectAnswerString(
+                                                        _correctAnswer.text,
+                                                        _optionOne.text,
+                                                        _optionTwo.text,
+                                                        _optionThree.text,
+                                                        _optionFour.text),
                                                 'tags': tagValues,
                                                 'dateForWhichURL': currentDate,
                                                 'saveDate': DateTime.now(),
-                                                'entryType': 'Exam'
+                                                'entryType': 'Exam',
+                                                'timeForQuestion': sliderValue
                                               }).then((value) {
                                                 getAvailableEntries();
                                                 fToast.showToast(

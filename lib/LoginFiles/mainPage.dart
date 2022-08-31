@@ -57,7 +57,7 @@ class MainPage extends StatelessWidget {
                 children: [
                   Center(
                     child: Padding(
-                      padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
+                      padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
                       child: AutoSizeText(
                         'THE FUTURE',
                         textAlign: TextAlign.center,
@@ -68,7 +68,7 @@ class MainPage extends StatelessWidget {
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.fromLTRB(0, 50, 0, 0),
+                    padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
                     child: AutoSizeText(
                       'Welcome,\nPlease Select To Proceed',
                       textAlign: TextAlign.center,
@@ -184,7 +184,7 @@ class MainPage extends StatelessWidget {
                 children: [
                   Center(
                     child: Padding(
-                      padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
+                      padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
                       child: Container(
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,

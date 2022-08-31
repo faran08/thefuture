@@ -1,11 +1,16 @@
 // ignore_for_file: must_be_immutable, prefer_const_constructors
 
+import 'dart:ffi';
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:animate_do/animate_do.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:drop_down_list/drop_down_list.dart';
 import 'package:dropdown_button2/custom_dropdown_button2.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:firebase_ml_custom/firebase_ml_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -13,6 +18,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:thefuture/AdminFiles/StateControllers.dart';
+import 'package:tflite_flutter/tflite_flutter.dart' as tfl;
 import 'package:thefuture/StudentFiles/StudentController.dart';
 
 import '../globals.dart';
@@ -29,6 +35,7 @@ class StudentProfile extends StatelessWidget {
       FirebaseFirestore.instance.collection('studentProfiles');
   PageController controller = PageController();
   GlobalKey<FormState> formKey = GlobalKey();
+
   ///////////////////////////////////////////////
   late String? selectedAge = 'Less then 20';
   final List<String> ageData = const [
@@ -76,7 +83,7 @@ class StudentProfile extends StatelessWidget {
   late String? selectedMajor = 'Yes';
   final List<String> selectedMajorData = const ['Yes', 'No'];
   //
-  late String? selectedCountry = 'Albania';
+  late String? selectedCountry = 'Pakistan';
   final TextEditingController countryTextEditingController =
       TextEditingController();
   //
@@ -92,12 +99,257 @@ class StudentProfile extends StatelessWidget {
   final TextEditingController bacherlorsSubject2 = TextEditingController();
   final TextEditingController bacherlorsSubject3 = TextEditingController();
   ////////////////////////////////////////////////
+
+  List<List<double>> getFormattedData(
+      String age,
+      String gender,
+      String ethencity,
+      String degree,
+      String employment,
+      String residence,
+      String major,
+      String country,
+      double oLevel,
+      double aLevel,
+      double cgpa) {
+    double ageO;
+    double genderO;
+    double ethencityO;
+    double degreeO;
+    double employmentO;
+    double residenceO;
+    double majorO;
+    double countryO;
+    double oLevelO;
+    double aLevelO;
+    double cgpaO;
+    switch (age) {
+      case 'Less then 20':
+        ageO = 18;
+        break;
+      case '21 to 29':
+        ageO = 25;
+        break;
+      case '30 to 39':
+        ageO = 35;
+        break;
+      case '40 to 49':
+        ageO = 45;
+        break;
+      default:
+        ageO = 30;
+        break;
+    }
+
+    switch (gender) {
+      case 'Male':
+        genderO = 1;
+        break;
+      case 'Female':
+        genderO = 2;
+        break;
+      default:
+        genderO = 1;
+        break;
+    }
+
+    switch (ethencity) {
+      case 'Asian American':
+        ethencityO = 1;
+        break;
+      case 'African American':
+        ethencityO = 2;
+        break;
+      case 'Caucasian/ White':
+        ethencityO = 3;
+        break;
+      case 'American Indian':
+        ethencityO = 4;
+        break;
+      case 'Hispanic/ Latino/ Chicano':
+        ethencityO = 5;
+        break;
+      case 'Multi-Racial':
+        ethencityO = 6;
+        break;
+      case 'Arab/ Arab American':
+        ethencityO = 7;
+        break;
+      case 'Asian':
+        ethencityO = 8;
+        break;
+      case 'Other':
+        ethencityO = 9;
+        break;
+      default:
+        ethencityO = 1;
+        break;
+    }
+
+    switch (degree) {
+      case 'Associates':
+        degreeO = 1;
+        break;
+      case 'Bachelors':
+        degreeO = 2;
+        break;
+      case 'Masters':
+        degreeO = 3;
+        break;
+      case 'Doctorate':
+        degreeO = 4;
+        break;
+      case 'Matric/ O-Level':
+        degreeO = 5;
+        break;
+      case 'FSc/ A-Level':
+        degreeO = 6;
+        break;
+      case 'Other':
+        degreeO = 7;
+        break;
+      default:
+        degreeO = 6;
+        break;
+    }
+
+    switch (employment) {
+      case 'Employed':
+        employmentO = 1;
+        break;
+      case 'Not Employed':
+        employmentO = 2;
+        break;
+      default:
+        employmentO = 1;
+        break;
+    }
+
+    switch (residence) {
+      case 'Residence':
+        residenceO = 1;
+        break;
+      case 'Commuter':
+        residenceO = 2;
+        break;
+      default:
+        residenceO = 1;
+        break;
+    }
+
+    switch (major) {
+      case 'Yes':
+        majorO = 1;
+        break;
+      case 'No':
+        majorO = 1;
+        break;
+      default:
+        majorO = 1;
+        break;
+    }
+
+    switch (country) {
+      case 'Australia':
+        countryO = 1;
+        break;
+      case 'Bahrain':
+        countryO = 2;
+        break;
+      case 'India':
+        countryO = 3;
+        break;
+      case 'Pakistan':
+        countryO = 4;
+        break;
+      case 'Sweden':
+        countryO = 5;
+        break;
+      case 'United Kingdom':
+        countryO = 6;
+        break;
+      case 'United States':
+        countryO = 7;
+        break;
+      default:
+        countryO = 4;
+        break;
+    }
+
+    oLevelO = oLevel;
+    aLevelO = aLevel;
+    cgpaO = cgpa;
+
+    return [
+      [
+        ageO,
+        genderO,
+        ethencityO,
+        degreeO,
+        employmentO,
+        residenceO,
+        majorO,
+        countryO,
+        oLevelO,
+        aLevelO,
+        cgpaO
+      ]
+    ];
+  }
+
   bool _validateForm() {
     FormState form = formKey.currentState!;
+
     if (form.validate()) {
       return true;
     } else {
       return false;
+    }
+  }
+
+  Future<List<dynamic>> getOutput(var data, File value) async {
+    final interpreter = tfl.Interpreter.fromFile(value);
+    var input = data;
+
+    // if output tensor shape [1,2] and type is float32
+    var output = List.filled(1, 1).reshape([1, 1]);
+    // double output = 0;
+    // var output;
+
+    // inference
+    interpreter.run(input, output);
+
+    // print the output
+
+    return output;
+  }
+
+  static Future<File> loadModelFromFirebase() async {
+    try {
+      // Create model with a name that is specified in the Firebase console
+      final model = FirebaseCustomRemoteModel('Difficulty-Level');
+
+      // Specify conditions when the model can be downloaded.
+      // If there is no wifi access when the app is started,
+      // this app will continue loading until the conditions are satisfied.
+      final conditions = FirebaseModelDownloadConditions(
+          androidRequireWifi: true, iosAllowCellularAccess: false);
+
+      // Create model manager associated with default Firebase App instance.
+      final modelManager = FirebaseModelManager.instance;
+
+      // Begin downloading and wait until the model is downloaded successfully.
+      await modelManager.download(model, conditions);
+      assert(await modelManager.isModelDownloaded(model) == true);
+
+      // Get latest model file to use it for inference by the interpreter.
+      var modelFile = await modelManager.getLatestModelFile(model);
+      assert(modelFile != null);
+      return modelFile;
+    } catch (exception) {
+      print('Failed on loading your model from Firebase: $exception');
+      print('The program will not be resumed');
+      rethrow;
     }
   }
 
@@ -954,52 +1206,105 @@ class StudentProfile extends StatelessWidget {
                               padding: const EdgeInsets.fromLTRB(10, 5, 10, 5)),
                           onPressed: () {
                             EasyLoading.show();
-                            studentProfiles.add({
-                              'age': selectedAge,
-                              'gender': selectedGender,
-                              'ethnicity': selectedEthncity,
-                              'degree': selectedDegree,
-                              'employment': selectedEmployment,
-                              'residency': selectedResidency,
-                              'major': selectedMajor,
-                              'country': selectedCountry,
-                              'oLevelPercentage': oLevelPercentage.text,
-                              'aLevelPercentage': aLevelPercentage.text,
-                              'bachelorsCGPA': bachelorsCGPA.text,
-                              'aLevelSubject': aLevelSubject.text,
-                              'oLevelSubject': oLevelSubject.text,
-                              'bachelorsSubject1': bacherlorsSubject1.text,
-                              'bachelorsSubject2': bacherlorsSubject2.text,
-                              'bachelorsSubject3': bacherlorsSubject3.text,
-                              'createdOn': DateTime.now(),
-                              'referenceDocument': parentDocument,
-                              'studentName': globalUserName,
-                            }).then((value) {
-                              EasyLoading.dismiss();
-                              var fToast = FToast();
-                              fToast.init(context);
-                              fToast.showToast(
-                                  child: getToast(
-                                      JelloIn(
-                                          child: Icon(FontAwesomeIcons.check)),
-                                      'Form Submitted Successfully'));
-                              joinedCourses
-                                  .doc(parentDocument)
-                                  .update({'formFilled': true}).then((value) {
-                                Get.close(1);
-                                //Get.to(CourseOverView);
+                            loadModelFromFirebase().then((value) async {
+                              getOutput([
+                                getFormattedData(
+                                    selectedAge!,
+                                    selectedGender!,
+                                    selectedEthncity!,
+                                    selectedDegree!,
+                                    selectedEmployment!,
+                                    selectedResidency!,
+                                    selectedMajor!,
+                                    selectedCountry!,
+                                    double.parse(oLevelPercentage.text),
+                                    double.parse(aLevelPercentage.text),
+                                    double.parse(bachelorsCGPA.text))
+                              ], value)
+                                  .then((value) {
+                                String outputDifficultyLevel = 'Hard';
+                                switch ((value[0][0] as double).floor()) {
+                                  case 0:
+                                    outputDifficultyLevel = 'Hard';
+                                    break;
+                                  case 1:
+                                    outputDifficultyLevel = 'Hard';
+                                    break;
+                                  case 2:
+                                    outputDifficultyLevel = 'Semi Hard';
+                                    break;
+                                  case 3:
+                                    outputDifficultyLevel = 'Normal';
+                                    break;
+                                  case 4:
+                                    outputDifficultyLevel = 'Low Average';
+                                    break;
+                                  case 5:
+                                    outputDifficultyLevel = 'Below Average';
+                                    break;
+                                  default:
+                                    outputDifficultyLevel = 'Below Average';
+                                    break;
+                                }
+                                Fluttertoast.showToast(
+                                    msg: outputDifficultyLevel,
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    gravity: ToastGravity.BOTTOM,
+                                    timeInSecForIosWeb: 1,
+                                    backgroundColor: Colors.grey,
+                                    textColor: Colors.black,
+                                    fontSize: 16.0);
                               });
-                            }).onError((error, stackTrace) {
-                              Fluttertoast.showToast(
-                                  msg: 'Error: ' + error.toString(),
-                                  toastLength: Toast.LENGTH_SHORT,
-                                  gravity: ToastGravity.BOTTOM,
-                                  timeInSecForIosWeb: 1,
-                                  backgroundColor: Colors.grey,
-                                  textColor: Colors.black,
-                                  fontSize: 16.0);
                               EasyLoading.dismiss();
                             });
+
+                            // EasyLoading.show();
+                            // studentProfiles.add({
+                            //   'age': selectedAge,
+                            //   'gender': selectedGender,
+                            //   'ethnicity': selectedEthncity,
+                            //   'degree': selectedDegree,
+                            //   'employment': selectedEmployment,
+                            //   'residency': selectedResidency,
+                            //   'major': selectedMajor,
+                            //   'country': selectedCountry,
+                            //   'oLevelPercentage': oLevelPercentage.text,
+                            //   'aLevelPercentage': aLevelPercentage.text,
+                            //   'bachelorsCGPA': bachelorsCGPA.text,
+                            //   'aLevelSubject': aLevelSubject.text,
+                            //   'oLevelSubject': oLevelSubject.text,
+                            //   'bachelorsSubject1': bacherlorsSubject1.text,
+                            //   'bachelorsSubject2': bacherlorsSubject2.text,
+                            //   'bachelorsSubject3': bacherlorsSubject3.text,
+                            //   'createdOn': DateTime.now(),
+                            //   'referenceDocument': parentDocument,
+                            //   'studentName': globalUserName,
+                            // }).then((value) {
+                            //   EasyLoading.dismiss();
+                            //   var fToast = FToast();
+                            //   fToast.init(context);
+                            //   fToast.showToast(
+                            //       child: getToast(
+                            //           JelloIn(
+                            //               child: Icon(FontAwesomeIcons.check)),
+                            //           'Form Submitted Successfully'));
+                            //   joinedCourses
+                            //       .doc(parentDocument)
+                            //       .update({'formFilled': true}).then((value) {
+                            //     Get.close(1);
+                            //     //Get.to(CourseOverView);
+                            //   });
+                            // }).onError((error, stackTrace) {
+                            //   Fluttertoast.showToast(
+                            //       msg: 'Error: ' + error.toString(),
+                            //       toastLength: Toast.LENGTH_SHORT,
+                            //       gravity: ToastGravity.BOTTOM,
+                            //       timeInSecForIosWeb: 1,
+                            //       backgroundColor: Colors.grey,
+                            //       textColor: Colors.black,
+                            //       fontSize: 16.0);
+                            //   EasyLoading.dismiss();
+                            // });
                           },
                           child: Row(
                             mainAxisSize: MainAxisSize.min,

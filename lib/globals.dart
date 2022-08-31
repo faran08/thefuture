@@ -2,6 +2,8 @@
 
 library thefuture.globals;
 
+import 'dart:math';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
@@ -12,6 +14,34 @@ Color shadowColor = Colors.black.withOpacity(0.2);
 Cubic transitionCurves = Curves.easeOutExpo;
 String globalUserName = '';
 Color iconButtonColor = Color(0xAA183153);
+
+Color getRandomColor() {
+  List<Color> colors = [
+    Colors.green.shade300,
+    Colors.red.shade300,
+    Colors.blue.shade300,
+    Colors.yellow.shade300,
+    Colors.amber.shade300,
+    Colors.blueAccent,
+    Colors.lightBlue.shade300,
+    Colors.indigo.shade300
+  ];
+  return colors[Random().nextInt(8)];
+}
+
+Color getNumberedColor(int input) {
+  List<Color> colors = [
+    Colors.green.shade200,
+    Colors.red.shade200,
+    Colors.blue.shade200,
+    Colors.yellow.shade200,
+    Colors.amber.shade200,
+    Colors.blueAccent,
+    Colors.lightBlue.shade200,
+    Colors.indigo.shade200
+  ];
+  return colors[input];
+}
 
 Widget getToast(Widget Icon, String Message) {
   return Container(
@@ -37,6 +67,16 @@ Widget getToast(Widget Icon, String Message) {
 }
 
 final List<Map> countryList = [
+  {"Code": "AU", "Name": "Australia"},
+  {"Code": "BH", "Name": "Bahrain"},
+  {"Code": "IN", "Name": "India"},
+  {"Code": "PK", "Name": "Pakistan"},
+  {"Code": "SE", "Name": "Sweden"},
+  {"Code": "GB", "Name": "United Kingdom"},
+  {"Code": "US", "Name": "United States"}
+];
+
+final List<Map> countryList2 = [
   {"Code": "AF", "Name": "Afghanistan"},
   {"Code": "AL", "Name": "Albania"},
   {"Code": "DZ", "Name": "Algeria"},

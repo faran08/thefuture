@@ -12,6 +12,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:thefuture/AdminFiles/PrepareExam.dart';
+import 'package:thefuture/AdminFiles/ShowExamResults.dart';
 
 import '../globals.dart';
 
@@ -192,466 +193,665 @@ class AdminStateControllers extends GetxController {
       for (var element in value.docs) {
         definedCoursesListTile.add(ListTile(
             onTap: () {
-              Get.bottomSheet(BottomSheet(
-                  onClosing: () {},
-                  builder: (_) {
-                    return SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.5,
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            ((element.data() as Map)['firstSessionalDate']
-                                        as Timestamp)
-                                    .toDate()
-                                    .isAfter(DateTime.now())
-                                ? TextButton(
-                                    style: TextButton.styleFrom(
-                                        backgroundColor: buttonColor,
-                                        elevation: 2,
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10)),
-                                        shadowColor: backGroundColor,
-                                        padding: EdgeInsets.fromLTRB(
-                                            10, 20, 10, 20)),
-                                    onPressed: () {
-                                      DateTime inputDate = ((element.data()
-                                                  as Map)['firstSessionalDate']
-                                              as Timestamp)
-                                          .toDate();
-                                      EasyLoading.show();
-                                      exams
-                                          .where('defineURL',
-                                              isEqualTo: element.id)
-                                          .where('dateForWhichURL',
-                                              isGreaterThanOrEqualTo: DateTime(
-                                                  inputDate.year,
-                                                  inputDate.month,
-                                                  inputDate.day))
-                                          .where('dateForWhichURL',
-                                              isLessThanOrEqualTo: DateTime(
-                                                  inputDate.year,
-                                                  inputDate.month,
-                                                  inputDate.day,
-                                                  24))
-                                          .get()
-                                          .then((value) {
-                                        EasyLoading.dismiss();
-                                        if (value.docs.isEmpty) {
-                                          Get.to(PrepareExam(
-                                            examType: 'firstSessional',
-                                            inputDate: ((element.data() as Map)[
-                                                        'firstSessionalDate']
-                                                    as Timestamp)
-                                                .toDate(),
-                                            defineURL: element.id,
-                                          ));
-                                        } else {
-                                          Fluttertoast.showToast(
-                                              msg: 'Exam already prepared',
-                                              toastLength: Toast.LENGTH_SHORT,
-                                              gravity: ToastGravity.BOTTOM,
-                                              timeInSecForIosWeb: 1,
-                                              backgroundColor: Colors.grey,
-                                              textColor: Colors.black,
-                                              fontSize: 16.0);
-                                        }
-                                      }).onError((error, stackTrace) {
-                                        EasyLoading.dismiss();
-                                        Fluttertoast.showToast(
-                                            msg: 'Error: ' + error.toString(),
-                                            toastLength: Toast.LENGTH_SHORT,
-                                            gravity: ToastGravity.BOTTOM,
-                                            timeInSecForIosWeb: 1,
-                                            backgroundColor: Colors.grey,
-                                            textColor: Colors.black,
-                                            fontSize: 16.0);
-                                      });
-                                    },
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Padding(
-                                          padding:
-                                              EdgeInsets.fromLTRB(10, 0, 0, 0),
-                                          child: Icon(
-                                            Icons.scale_rounded,
-                                            color: textColor,
-                                            size: 25,
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding:
-                                              EdgeInsets.fromLTRB(20, 0, 20, 0),
-                                          child: AutoSizeText(
-                                            'Prepare First Sessional',
-                                            minFontSize: 20,
-                                            style: GoogleFonts.poppins(
-                                                color: textColor,
-                                                fontWeight: FontWeight.w600),
-                                          ),
-                                        )
-                                      ],
-                                    ))
-                                : Container(),
-                            ((element.data() as Map)['midTermDate']
-                                        as Timestamp)
-                                    .toDate()
-                                    .isAfter(DateTime.now())
-                                ? TextButton(
-                                    style: TextButton.styleFrom(
-                                        backgroundColor: buttonColor,
-                                        elevation: 2,
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10)),
-                                        shadowColor: backGroundColor,
-                                        padding: EdgeInsets.fromLTRB(
-                                            10, 20, 10, 20)),
-                                    onPressed: () {
-                                      DateTime inputDate = ((element.data()
-                                                  as Map)['midTermDate']
-                                              as Timestamp)
-                                          .toDate();
-                                      EasyLoading.show();
-                                      exams
-                                          .where('defineURL',
-                                              isEqualTo: element.id)
-                                          .where('dateForWhichURL',
-                                              isGreaterThanOrEqualTo: DateTime(
-                                                  inputDate.year,
-                                                  inputDate.month,
-                                                  inputDate.day))
-                                          .where('dateForWhichURL',
-                                              isLessThanOrEqualTo: DateTime(
-                                                  inputDate.year,
-                                                  inputDate.month,
-                                                  inputDate.day,
-                                                  24))
-                                          .get()
-                                          .then((value) {
-                                        EasyLoading.dismiss();
-                                        if (value.docs.isEmpty) {
-                                          Get.to(PrepareExam(
-                                            examType: 'midTerm',
-                                            inputDate: ((element.data()
-                                                        as Map)['midTermDate']
-                                                    as Timestamp)
-                                                .toDate(),
-                                            defineURL: element.id,
-                                          ));
-                                        } else {
-                                          Fluttertoast.showToast(
-                                              msg: 'Exam already prepared',
-                                              toastLength: Toast.LENGTH_SHORT,
-                                              gravity: ToastGravity.BOTTOM,
-                                              timeInSecForIosWeb: 1,
-                                              backgroundColor: Colors.grey,
-                                              textColor: Colors.black,
-                                              fontSize: 16.0);
-                                        }
-                                      }).onError((error, stackTrace) {
-                                        EasyLoading.dismiss();
-                                        Fluttertoast.showToast(
-                                            msg: 'Error: ' + error.toString(),
-                                            toastLength: Toast.LENGTH_SHORT,
-                                            gravity: ToastGravity.BOTTOM,
-                                            timeInSecForIosWeb: 1,
-                                            backgroundColor: Colors.grey,
-                                            textColor: Colors.black,
-                                            fontSize: 16.0);
-                                      });
-                                    },
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Padding(
-                                          padding:
-                                              EdgeInsets.fromLTRB(10, 0, 0, 0),
-                                          child: Icon(
-                                            Icons.scale_rounded,
-                                            color: textColor,
-                                            size: 25,
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding:
-                                              EdgeInsets.fromLTRB(20, 0, 20, 0),
-                                          child: AutoSizeText(
-                                            'Prepare Mid Terms',
-                                            minFontSize: 20,
-                                            style: GoogleFonts.poppins(
-                                                color: textColor,
-                                                fontWeight: FontWeight.w600),
-                                          ),
-                                        )
-                                      ],
-                                    ))
-                                : Container(),
-                            ((element.data() as Map)['secondSessionalDate']
-                                        as Timestamp)
-                                    .toDate()
-                                    .isAfter(DateTime.now())
-                                ? TextButton(
-                                    style: TextButton.styleFrom(
-                                        backgroundColor: buttonColor,
-                                        elevation: 2,
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10)),
-                                        shadowColor: backGroundColor,
-                                        padding: EdgeInsets.fromLTRB(
-                                            10, 20, 10, 20)),
-                                    onPressed: () {
-                                      DateTime inputDate = ((element.data()
-                                                  as Map)['secondSessionalDate']
-                                              as Timestamp)
-                                          .toDate();
-                                      EasyLoading.show();
-                                      exams
-                                          .where('defineURL',
-                                              isEqualTo: element.id)
-                                          .where('dateForWhichURL',
-                                              isGreaterThanOrEqualTo: DateTime(
-                                                  inputDate.year,
-                                                  inputDate.month,
-                                                  inputDate.day))
-                                          .where('dateForWhichURL',
-                                              isLessThanOrEqualTo: DateTime(
-                                                  inputDate.year,
-                                                  inputDate.month,
-                                                  inputDate.day,
-                                                  24))
-                                          .get()
-                                          .then((value) {
-                                        EasyLoading.dismiss();
-                                        if (value.docs.isEmpty) {
-                                          Get.to(PrepareExam(
-                                            examType: 'secondSessional',
-                                            inputDate: ((element.data() as Map)[
-                                                        'secondSessionalDate']
-                                                    as Timestamp)
-                                                .toDate(),
-                                            defineURL: element.id,
-                                          ));
-                                        } else {
-                                          Fluttertoast.showToast(
-                                              msg: 'Exam already prepared',
-                                              toastLength: Toast.LENGTH_SHORT,
-                                              gravity: ToastGravity.BOTTOM,
-                                              timeInSecForIosWeb: 1,
-                                              backgroundColor: Colors.grey,
-                                              textColor: Colors.black,
-                                              fontSize: 16.0);
-                                        }
-                                      }).onError((error, stackTrace) {
-                                        EasyLoading.dismiss();
-                                        Fluttertoast.showToast(
-                                            msg: 'Error: ' + error.toString(),
-                                            toastLength: Toast.LENGTH_SHORT,
-                                            gravity: ToastGravity.BOTTOM,
-                                            timeInSecForIosWeb: 1,
-                                            backgroundColor: Colors.grey,
-                                            textColor: Colors.black,
-                                            fontSize: 16.0);
-                                      });
-                                    },
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Padding(
-                                          padding:
-                                              EdgeInsets.fromLTRB(10, 0, 0, 0),
-                                          child: Icon(
-                                            Icons.scale_rounded,
-                                            color: textColor,
-                                            size: 25,
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding:
-                                              EdgeInsets.fromLTRB(20, 0, 20, 0),
-                                          child: AutoSizeText(
-                                            'Prepare Second Sessional',
-                                            minFontSize: 20,
-                                            style: GoogleFonts.poppins(
-                                                color: textColor,
-                                                fontWeight: FontWeight.w600),
-                                          ),
-                                        )
-                                      ],
-                                    ))
-                                : Container(),
-                            ((element.data() as Map)['finalExamDate']
-                                        as Timestamp)
-                                    .toDate()
-                                    .isAfter(DateTime.now())
-                                ? TextButton(
-                                    style: TextButton.styleFrom(
-                                        backgroundColor: buttonColor,
-                                        elevation: 2,
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10)),
-                                        shadowColor: backGroundColor,
-                                        padding: EdgeInsets.fromLTRB(
-                                            10, 20, 10, 20)),
-                                    onPressed: () {
-                                      DateTime inputDate = ((element.data()
-                                                  as Map)['finalExamDate']
-                                              as Timestamp)
-                                          .toDate();
-                                      EasyLoading.show();
-                                      exams
-                                          .where('defineURL',
-                                              isEqualTo: element.id)
-                                          .where('dateForWhichURL',
-                                              isGreaterThanOrEqualTo: DateTime(
-                                                  inputDate.year,
-                                                  inputDate.month,
-                                                  inputDate.day))
-                                          .where('dateForWhichURL',
-                                              isLessThanOrEqualTo: DateTime(
-                                                  inputDate.year,
-                                                  inputDate.month,
-                                                  inputDate.day,
-                                                  24))
-                                          .get()
-                                          .then((value) {
-                                        EasyLoading.dismiss();
-                                        if (value.docs.isEmpty) {
-                                          Get.to(PrepareExam(
-                                            examType: 'finalExam',
-                                            inputDate: ((element.data()
-                                                        as Map)['finalExamDate']
-                                                    as Timestamp)
-                                                .toDate(),
-                                            defineURL: element.id,
-                                          ));
-                                        } else {
-                                          Fluttertoast.showToast(
-                                              msg: 'Exam already prepared',
-                                              toastLength: Toast.LENGTH_SHORT,
-                                              gravity: ToastGravity.BOTTOM,
-                                              timeInSecForIosWeb: 1,
-                                              backgroundColor: Colors.grey,
-                                              textColor: Colors.black,
-                                              fontSize: 16.0);
-                                        }
-                                      }).onError((error, stackTrace) {
-                                        EasyLoading.dismiss();
-                                        Fluttertoast.showToast(
-                                            msg: 'Error: ' + error.toString(),
-                                            toastLength: Toast.LENGTH_SHORT,
-                                            gravity: ToastGravity.BOTTOM,
-                                            timeInSecForIosWeb: 1,
-                                            backgroundColor: Colors.grey,
-                                            textColor: Colors.black,
-                                            fontSize: 16.0);
-                                      });
-                                    },
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Padding(
-                                          padding:
-                                              EdgeInsets.fromLTRB(10, 0, 0, 0),
-                                          child: Icon(
-                                            Icons.scale_rounded,
-                                            color: textColor,
-                                            size: 25,
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding:
-                                              EdgeInsets.fromLTRB(20, 0, 20, 0),
-                                          child: AutoSizeText(
-                                            'Prepare Final Exam',
-                                            minFontSize: 20,
-                                            style: GoogleFonts.poppins(
-                                                color: textColor,
-                                                fontWeight: FontWeight.w600),
-                                          ),
-                                        )
-                                      ],
-                                    ))
-                                : Container(),
-                            Padding(
-                              padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
-                              child: TextButton(
-                                  style: TextButton.styleFrom(
-                                      backgroundColor: buttonColor,
-                                      elevation: 2,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10)),
-                                      shadowColor: backGroundColor,
-                                      padding:
-                                          EdgeInsets.fromLTRB(10, 20, 10, 20)),
-                                  onPressed: () {
-                                    Get.defaultDialog(
-                                        contentPadding: EdgeInsets.all(30),
-                                        title: 'Warning',
-                                        middleText:
-                                            'Are you sure? You can only delete if no courses are designed using this course.',
-                                        backgroundColor: backGroundColor,
-                                        onConfirm: () {
-                                          definedCourses
-                                              .doc(element.id)
-                                              .delete()
-                                              .then((value) {
-                                            Get.back(closeOverlays: true);
-                                            Get.snackbar(
-                                                "Message", 'Course Deleted',
-                                                backgroundColor: Colors.white);
-                                            update();
-                                          });
-                                        },
-                                        onCancel: (() => Get.back()));
-                                  },
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Padding(
+              Get.bottomSheet(
+                  BottomSheet(
+                      onClosing: () {},
+                      builder: (_) {
+                        return SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.8,
+                          child: Scaffold(
+                            appBar: null,
+                            body: SingleChildScrollView(
+                              child: Padding(
+                                padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    ((element.data() as Map)[
+                                                    'firstSessionalDate']
+                                                as Timestamp)
+                                            .toDate()
+                                            .isAfter(DateTime.now()
+                                                .subtract(Duration(days: 1)))
+                                        ? TextButton(
+                                            style: TextButton.styleFrom(
+                                                backgroundColor: buttonColor,
+                                                elevation: 2,
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10)),
+                                                shadowColor: backGroundColor,
+                                                padding: EdgeInsets.fromLTRB(
+                                                    10, 20, 10, 20)),
+                                            onPressed: () {
+                                              DateTime inputDate = ((element
+                                                              .data() as Map)[
+                                                          'firstSessionalDate']
+                                                      as Timestamp)
+                                                  .toDate();
+                                              EasyLoading.show();
+                                              exams
+                                                  .where('defineURL',
+                                                      isEqualTo: element.id)
+                                                  .where('dateForWhichURL',
+                                                      isGreaterThanOrEqualTo:
+                                                          DateTime(
+                                                              inputDate.year,
+                                                              inputDate.month,
+                                                              inputDate.day))
+                                                  .where('dateForWhichURL',
+                                                      isLessThanOrEqualTo:
+                                                          DateTime(
+                                                              inputDate.year,
+                                                              inputDate.month,
+                                                              inputDate.day,
+                                                              24))
+                                                  .get()
+                                                  .then((value) {
+                                                EasyLoading.dismiss();
+                                                if (value.docs.isEmpty) {
+                                                  Get.to(PrepareExam(
+                                                    examType: 'firstSessional',
+                                                    inputDate: ((element.data()
+                                                                    as Map)[
+                                                                'firstSessionalDate']
+                                                            as Timestamp)
+                                                        .toDate(),
+                                                    defineURL: element.id,
+                                                  ));
+                                                } else {
+                                                  Fluttertoast.showToast(
+                                                      msg:
+                                                          'Exam already prepared',
+                                                      toastLength:
+                                                          Toast.LENGTH_SHORT,
+                                                      gravity:
+                                                          ToastGravity.BOTTOM,
+                                                      timeInSecForIosWeb: 1,
+                                                      backgroundColor:
+                                                          Colors.grey,
+                                                      textColor: Colors.black,
+                                                      fontSize: 16.0);
+                                                }
+                                              }).onError((error, stackTrace) {
+                                                EasyLoading.dismiss();
+                                                Fluttertoast.showToast(
+                                                    msg: 'Error: ' +
+                                                        error.toString(),
+                                                    toastLength:
+                                                        Toast.LENGTH_SHORT,
+                                                    gravity:
+                                                        ToastGravity.BOTTOM,
+                                                    timeInSecForIosWeb: 1,
+                                                    backgroundColor:
+                                                        Colors.grey,
+                                                    textColor: Colors.black,
+                                                    fontSize: 16.0);
+                                              });
+                                            },
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Padding(
+                                                  padding: EdgeInsets.fromLTRB(
+                                                      10, 0, 0, 0),
+                                                  child: Icon(
+                                                    Icons.scale_rounded,
+                                                    color: textColor,
+                                                    size: 25,
+                                                  ),
+                                                ),
+                                                Padding(
+                                                  padding: EdgeInsets.fromLTRB(
+                                                      20, 0, 20, 0),
+                                                  child: AutoSizeText(
+                                                    'Prepare First Sessional',
+                                                    maxLines: 1,
+                                                    style: GoogleFonts.poppins(
+                                                        color: textColor,
+                                                        fontWeight:
+                                                            FontWeight.w600),
+                                                  ),
+                                                )
+                                              ],
+                                            ))
+                                        : Container(),
+                                    ((element.data() as Map)['midTermDate']
+                                                as Timestamp)
+                                            .toDate()
+                                            .isAfter(DateTime.now())
+                                        ? Padding(
+                                            padding: EdgeInsets.fromLTRB(
+                                                0, 10, 0, 0),
+                                            child: TextButton(
+                                                style: TextButton.styleFrom(
+                                                    backgroundColor:
+                                                        buttonColor,
+                                                    elevation: 2,
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10)),
+                                                    shadowColor:
+                                                        backGroundColor,
+                                                    padding:
+                                                        EdgeInsets.fromLTRB(
+                                                            10, 20, 10, 20)),
+                                                onPressed: () {
+                                                  DateTime inputDate =
+                                                      ((element.data() as Map)[
+                                                                  'midTermDate']
+                                                              as Timestamp)
+                                                          .toDate();
+                                                  EasyLoading.show();
+                                                  exams
+                                                      .where('defineURL',
+                                                          isEqualTo: element.id)
+                                                      .where('dateForWhichURL',
+                                                          isGreaterThanOrEqualTo:
+                                                              DateTime(
+                                                                  inputDate
+                                                                      .year,
+                                                                  inputDate
+                                                                      .month,
+                                                                  inputDate
+                                                                      .day))
+                                                      .where('dateForWhichURL',
+                                                          isLessThanOrEqualTo:
+                                                              DateTime(
+                                                                  inputDate
+                                                                      .year,
+                                                                  inputDate
+                                                                      .month,
+                                                                  inputDate.day,
+                                                                  24))
+                                                      .get()
+                                                      .then((value) {
+                                                    EasyLoading.dismiss();
+                                                    if (value.docs.isEmpty) {
+                                                      Get.to(PrepareExam(
+                                                        examType: 'midTerm',
+                                                        inputDate: ((element.data()
+                                                                        as Map)[
+                                                                    'midTermDate']
+                                                                as Timestamp)
+                                                            .toDate(),
+                                                        defineURL: element.id,
+                                                      ));
+                                                    } else {
+                                                      Fluttertoast.showToast(
+                                                          msg:
+                                                              'Exam already prepared',
+                                                          toastLength: Toast
+                                                              .LENGTH_SHORT,
+                                                          gravity: ToastGravity
+                                                              .BOTTOM,
+                                                          timeInSecForIosWeb: 1,
+                                                          backgroundColor:
+                                                              Colors.grey,
+                                                          textColor:
+                                                              Colors.black,
+                                                          fontSize: 16.0);
+                                                    }
+                                                  }).onError(
+                                                          (error, stackTrace) {
+                                                    EasyLoading.dismiss();
+                                                    Fluttertoast.showToast(
+                                                        msg: 'Error: ' +
+                                                            error.toString(),
+                                                        toastLength:
+                                                            Toast.LENGTH_SHORT,
+                                                        gravity:
+                                                            ToastGravity.BOTTOM,
+                                                        timeInSecForIosWeb: 1,
+                                                        backgroundColor:
+                                                            Colors.grey,
+                                                        textColor: Colors.black,
+                                                        fontSize: 16.0);
+                                                  });
+                                                },
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Padding(
+                                                      padding:
+                                                          EdgeInsets.fromLTRB(
+                                                              10, 0, 0, 0),
+                                                      child: Icon(
+                                                        Icons.scale_rounded,
+                                                        color: textColor,
+                                                        size: 25,
+                                                      ),
+                                                    ),
+                                                    Padding(
+                                                      padding:
+                                                          EdgeInsets.fromLTRB(
+                                                              20, 0, 20, 0),
+                                                      child: AutoSizeText(
+                                                        'Prepare Mid Terms',
+                                                        maxLines: 1,
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                                color:
+                                                                    textColor,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600),
+                                                      ),
+                                                    )
+                                                  ],
+                                                )),
+                                          )
+                                        : Container(),
+                                    ((element.data() as Map)[
+                                                    'secondSessionalDate']
+                                                as Timestamp)
+                                            .toDate()
+                                            .isAfter(DateTime.now())
+                                        ? Padding(
+                                            padding: EdgeInsets.fromLTRB(
+                                                0, 10, 0, 0),
+                                            child: TextButton(
+                                                style: TextButton.styleFrom(
+                                                    backgroundColor:
+                                                        buttonColor,
+                                                    elevation: 2,
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10)),
+                                                    shadowColor:
+                                                        backGroundColor,
+                                                    padding:
+                                                        EdgeInsets.fromLTRB(
+                                                            10, 20, 10, 20)),
+                                                onPressed: () {
+                                                  DateTime inputDate = ((element
+                                                                      .data()
+                                                                  as Map)[
+                                                              'secondSessionalDate']
+                                                          as Timestamp)
+                                                      .toDate();
+                                                  EasyLoading.show();
+                                                  exams
+                                                      .where('defineURL',
+                                                          isEqualTo: element.id)
+                                                      .where('dateForWhichURL',
+                                                          isGreaterThanOrEqualTo:
+                                                              DateTime(
+                                                                  inputDate
+                                                                      .year,
+                                                                  inputDate
+                                                                      .month,
+                                                                  inputDate
+                                                                      .day))
+                                                      .where('dateForWhichURL',
+                                                          isLessThanOrEqualTo:
+                                                              DateTime(
+                                                                  inputDate
+                                                                      .year,
+                                                                  inputDate
+                                                                      .month,
+                                                                  inputDate.day,
+                                                                  24))
+                                                      .get()
+                                                      .then((value) {
+                                                    EasyLoading.dismiss();
+                                                    if (value.docs.isEmpty) {
+                                                      Get.to(PrepareExam(
+                                                        examType:
+                                                            'secondSessional',
+                                                        inputDate: ((element.data()
+                                                                        as Map)[
+                                                                    'secondSessionalDate']
+                                                                as Timestamp)
+                                                            .toDate(),
+                                                        defineURL: element.id,
+                                                      ));
+                                                    } else {
+                                                      Fluttertoast.showToast(
+                                                          msg:
+                                                              'Exam already prepared',
+                                                          toastLength: Toast
+                                                              .LENGTH_SHORT,
+                                                          gravity: ToastGravity
+                                                              .BOTTOM,
+                                                          timeInSecForIosWeb: 1,
+                                                          backgroundColor:
+                                                              Colors.grey,
+                                                          textColor:
+                                                              Colors.black,
+                                                          fontSize: 16.0);
+                                                    }
+                                                  }).onError(
+                                                          (error, stackTrace) {
+                                                    EasyLoading.dismiss();
+                                                    Fluttertoast.showToast(
+                                                        msg: 'Error: ' +
+                                                            error.toString(),
+                                                        toastLength:
+                                                            Toast.LENGTH_SHORT,
+                                                        gravity:
+                                                            ToastGravity.BOTTOM,
+                                                        timeInSecForIosWeb: 1,
+                                                        backgroundColor:
+                                                            Colors.grey,
+                                                        textColor: Colors.black,
+                                                        fontSize: 16.0);
+                                                  });
+                                                },
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Padding(
+                                                      padding:
+                                                          EdgeInsets.fromLTRB(
+                                                              10, 0, 0, 0),
+                                                      child: Icon(
+                                                        Icons.scale_rounded,
+                                                        color: textColor,
+                                                        size: 25,
+                                                      ),
+                                                    ),
+                                                    Padding(
+                                                      padding:
+                                                          EdgeInsets.fromLTRB(
+                                                              20, 0, 20, 0),
+                                                      child: AutoSizeText(
+                                                        'Prepare Second Sessional',
+                                                        maxLines: 1,
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                                color:
+                                                                    textColor,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600),
+                                                      ),
+                                                    )
+                                                  ],
+                                                )),
+                                          )
+                                        : Container(),
+                                    ((element.data() as Map)['finalExamDate']
+                                                as Timestamp)
+                                            .toDate()
+                                            .isAfter(DateTime.now())
+                                        ? Padding(
+                                            padding: EdgeInsets.fromLTRB(
+                                                0, 10, 0, 0),
+                                            child: TextButton(
+                                                style: TextButton.styleFrom(
+                                                    backgroundColor:
+                                                        buttonColor,
+                                                    elevation: 2,
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10)),
+                                                    shadowColor:
+                                                        backGroundColor,
+                                                    padding:
+                                                        EdgeInsets.fromLTRB(
+                                                            10, 20, 10, 20)),
+                                                onPressed: () {
+                                                  DateTime inputDate = ((element
+                                                                      .data()
+                                                                  as Map)[
+                                                              'finalExamDate']
+                                                          as Timestamp)
+                                                      .toDate();
+                                                  EasyLoading.show();
+                                                  exams
+                                                      .where('defineURL',
+                                                          isEqualTo: element.id)
+                                                      .where('dateForWhichURL',
+                                                          isGreaterThanOrEqualTo:
+                                                              DateTime(
+                                                                  inputDate
+                                                                      .year,
+                                                                  inputDate
+                                                                      .month,
+                                                                  inputDate
+                                                                      .day))
+                                                      .where('dateForWhichURL',
+                                                          isLessThanOrEqualTo:
+                                                              DateTime(
+                                                                  inputDate
+                                                                      .year,
+                                                                  inputDate
+                                                                      .month,
+                                                                  inputDate.day,
+                                                                  24))
+                                                      .get()
+                                                      .then((value) {
+                                                    EasyLoading.dismiss();
+                                                    if (value.docs.isEmpty) {
+                                                      Get.to(PrepareExam(
+                                                        examType: 'finalExam',
+                                                        inputDate: ((element.data()
+                                                                        as Map)[
+                                                                    'finalExamDate']
+                                                                as Timestamp)
+                                                            .toDate(),
+                                                        defineURL: element.id,
+                                                      ));
+                                                    } else {
+                                                      Fluttertoast.showToast(
+                                                          msg:
+                                                              'Exam already prepared',
+                                                          toastLength: Toast
+                                                              .LENGTH_SHORT,
+                                                          gravity: ToastGravity
+                                                              .BOTTOM,
+                                                          timeInSecForIosWeb: 1,
+                                                          backgroundColor:
+                                                              Colors.grey,
+                                                          textColor:
+                                                              Colors.black,
+                                                          fontSize: 16.0);
+                                                    }
+                                                  }).onError(
+                                                          (error, stackTrace) {
+                                                    EasyLoading.dismiss();
+                                                    Fluttertoast.showToast(
+                                                        msg: 'Error: ' +
+                                                            error.toString(),
+                                                        toastLength:
+                                                            Toast.LENGTH_SHORT,
+                                                        gravity:
+                                                            ToastGravity.BOTTOM,
+                                                        timeInSecForIosWeb: 1,
+                                                        backgroundColor:
+                                                            Colors.grey,
+                                                        textColor: Colors.black,
+                                                        fontSize: 16.0);
+                                                  });
+                                                },
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Padding(
+                                                      padding:
+                                                          EdgeInsets.fromLTRB(
+                                                              10, 0, 0, 0),
+                                                      child: Icon(
+                                                        Icons.scale_rounded,
+                                                        color: textColor,
+                                                        size: 25,
+                                                      ),
+                                                    ),
+                                                    Padding(
+                                                      padding:
+                                                          EdgeInsets.fromLTRB(
+                                                              20, 0, 20, 0),
+                                                      child: AutoSizeText(
+                                                        'Prepare Final Exam',
+                                                        maxLines: 1,
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                                color:
+                                                                    textColor,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600),
+                                                      ),
+                                                    )
+                                                  ],
+                                                )),
+                                          )
+                                        : Container(),
+                                    Divider(
+                                      thickness: 1,
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                                      child: TextButton(
+                                          style: TextButton.styleFrom(
+                                              backgroundColor: buttonColor,
+                                              elevation: 2,
+                                              shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10)),
+                                              shadowColor: backGroundColor,
+                                              padding: EdgeInsets.fromLTRB(
+                                                  10, 20, 10, 20)),
+                                          onPressed: () {
+                                            Get.to(ShowExamResults(
+                                              defineID: element.id,
+                                            ));
+                                          },
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Padding(
+                                                padding: EdgeInsets.fromLTRB(
+                                                    10, 0, 0, 0),
+                                                child: Icon(
+                                                  Icons.scale_rounded,
+                                                  color: textColor,
+                                                  size: 25,
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding: EdgeInsets.fromLTRB(
+                                                    20, 0, 20, 0),
+                                                child: AutoSizeText(
+                                                  'Show Exam Results',
+                                                  maxLines: 1,
+                                                  style: GoogleFonts.poppins(
+                                                      color: textColor,
+                                                      fontWeight:
+                                                          FontWeight.w600),
+                                                ),
+                                              )
+                                            ],
+                                          )),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
+                                      child: Padding(
                                         padding:
-                                            EdgeInsets.fromLTRB(10, 0, 0, 0),
-                                        child: Icon(
-                                          FontAwesomeIcons.remove,
-                                          color: textColor,
-                                          size: 25,
-                                        ),
+                                            EdgeInsets.fromLTRB(0, 10, 0, 0),
+                                        child: TextButton(
+                                            style: TextButton.styleFrom(
+                                                backgroundColor: buttonColor,
+                                                elevation: 2,
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10)),
+                                                shadowColor: backGroundColor,
+                                                padding: EdgeInsets.fromLTRB(
+                                                    10, 20, 10, 20)),
+                                            onPressed: () {
+                                              Get.defaultDialog(
+                                                  contentPadding:
+                                                      EdgeInsets.all(30),
+                                                  title: 'Warning',
+                                                  middleText:
+                                                      'Are you sure? You can only delete if no courses are designed using this course.',
+                                                  backgroundColor:
+                                                      backGroundColor,
+                                                  onConfirm: () {
+                                                    definedCourses
+                                                        .doc(element.id)
+                                                        .delete()
+                                                        .then((value) {
+                                                      Get.back(
+                                                          closeOverlays: true);
+                                                      Get.snackbar("Message",
+                                                          'Course Deleted',
+                                                          backgroundColor:
+                                                              Colors.white);
+                                                      update();
+                                                    });
+                                                  },
+                                                  onCancel: (() => Get.back()));
+                                            },
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.max,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Padding(
+                                                  padding: EdgeInsets.fromLTRB(
+                                                      10, 0, 0, 0),
+                                                  child: Icon(
+                                                    FontAwesomeIcons.remove,
+                                                    color: Colors.red,
+                                                    size: 25,
+                                                  ),
+                                                ),
+                                                Padding(
+                                                  padding: EdgeInsets.fromLTRB(
+                                                      20, 0, 20, 0),
+                                                  child: AutoSizeText(
+                                                    'Delete',
+                                                    minFontSize: 20,
+                                                    style: GoogleFonts.poppins(
+                                                        color: Colors.red,
+                                                        fontWeight:
+                                                            FontWeight.w600),
+                                                  ),
+                                                )
+                                              ],
+                                            )),
                                       ),
-                                      Padding(
-                                        padding:
-                                            EdgeInsets.fromLTRB(20, 0, 20, 0),
-                                        child: AutoSizeText(
-                                          'Delete',
-                                          minFontSize: 20,
-                                          style: GoogleFonts.poppins(
-                                              color: textColor,
-                                              fontWeight: FontWeight.w600),
-                                        ),
-                                      )
-                                    ],
-                                  )),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }));
+                          ),
+                        );
+                      },
+                      enableDrag: false),
+                  isScrollControlled: true,
+                  enableDrag: false);
             },
             title: Text(
               (element.data() as Map)['courseName'],

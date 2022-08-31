@@ -109,7 +109,7 @@ class PrepareExam extends StatelessWidget {
                                       padding:
                                           EdgeInsets.fromLTRB(10, 20, 10, 20)),
                                   onPressed: () {
-                                    if (examQuestions.length > sliderValue) {
+                                    if (examQuestions.length >= sliderValue) {
                                       List<int> questionsList = [];
                                       int maxLimit = 0;
                                       while (

@@ -2,6 +2,7 @@
 
 import 'dart:ui';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -350,7 +351,7 @@ class EditDesignCourse extends StatelessWidget {
                                   .millisecondsSinceEpoch)
                           .add(Duration(days: index))
                           .isBefore(DateTime.now())
-                      ? Colors.blueGrey
+                      ? Colors.red.shade300
                       : Colors.white,
                 ),
                 padding: EdgeInsets.all(10),
@@ -363,7 +364,7 @@ class EditDesignCourse extends StatelessWidget {
                                     as Timestamp)
                                 .millisecondsSinceEpoch)
                         .add(Duration(days: index))
-                        .isAfter(DateTime.now())) {
+                        .isAfter(DateTime.now().subtract(Duration(days: 1)))) {
                       if (getCurrentDayActivity(DateTime.fromMillisecondsSinceEpoch(
                                       ((documentData.data() as Map)['startDate'] as Timestamp)
                                           .millisecondsSinceEpoch)
@@ -477,7 +478,8 @@ class EditDesignCourse extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(10),
                                   color: Colors.grey.shade300),
                               padding: EdgeInsets.all(5),
-                              child: Text(
+                              margin: EdgeInsets.all(5),
+                              child: AutoSizeText(
                                 getCurrentDayActivity(
                                         DateTime.fromMillisecondsSinceEpoch(
                                                 ((documentData.data()
@@ -486,6 +488,7 @@ class EditDesignCourse extends StatelessWidget {
                                                     .millisecondsSinceEpoch)
                                             .add(Duration(days: index)))
                                     .toString(),
+                                maxLines: 1,
                                 style: GoogleFonts.poppins(
                                     color: textColor,
                                     fontSize: 15,
@@ -503,7 +506,7 @@ class EditDesignCourse extends StatelessWidget {
               crossAxisCount: 2,
               crossAxisSpacing: 10,
               mainAxisSpacing: 10,
-              mainAxisExtent: MediaQuery.of(context).size.height * 0.15),
+              mainAxisExtent: MediaQuery.of(context).size.height * 0.18),
         ),
       ),
     ));

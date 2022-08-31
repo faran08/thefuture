@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -43,18 +44,18 @@ class DayView extends StatelessWidget {
           color: Colors.white,
           child: Padding(
             padding: EdgeInsets.all(10),
-            child: Text(
+            child: AutoSizeText(
               'Article',
               style: TextStyle(fontWeight: FontWeight.bold, color: textColor),
             ),
           ),
         ),
-        title: Text(
+        title: AutoSizeText(
           inputData['entryDescription'],
           style: GoogleFonts.poppins(
               color: textColor, fontWeight: FontWeight.bold, fontSize: 15),
         ),
-        subtitle: Text(
+        subtitle: AutoSizeText(
           inputData['URL'],
           style: GoogleFonts.poppins(
               color: textColor.withOpacity(0.5),
@@ -78,17 +79,17 @@ class DayView extends StatelessWidget {
           color: Colors.white,
           child: Padding(
             padding: EdgeInsets.all(10),
-            child: Text('Video',
+            child: AutoSizeText('Video',
                 style:
                     TextStyle(fontWeight: FontWeight.bold, color: textColor)),
           ),
         ),
-        title: Text(
+        title: AutoSizeText(
           inputData['entryDescription'],
           style: GoogleFonts.poppins(
               color: textColor, fontWeight: FontWeight.bold, fontSize: 15),
         ),
-        subtitle: Text(
+        subtitle: AutoSizeText(
           inputData['URL'],
           style: GoogleFonts.poppins(
               color: textColor.withOpacity(0.5),
@@ -105,18 +106,18 @@ class DayView extends StatelessWidget {
           color: Colors.white,
           child: Padding(
             padding: EdgeInsets.all(10),
-            child: Text(
+            child: AutoSizeText(
               'Audio',
               style: TextStyle(fontWeight: FontWeight.bold, color: textColor),
             ),
           ),
         ),
-        title: Text(
+        title: AutoSizeText(
           inputData['entryDescription'],
           style: GoogleFonts.poppins(
               color: textColor, fontWeight: FontWeight.bold, fontSize: 15),
         ),
-        subtitle: Text(
+        subtitle: AutoSizeText(
           inputData['URL'],
           style: GoogleFonts.poppins(
               color: textColor.withOpacity(0.5),
@@ -138,7 +139,7 @@ class DayView extends StatelessWidget {
           centerTitle: true,
           elevation: 0,
           backgroundColor: backGroundColor,
-          title: Text(
+          title: AutoSizeText(
             DateFormat('dd MMM yyyy').format(heading),
             style: GoogleFonts.poppins(
                 color: textColor, fontSize: 25, fontWeight: FontWeight.bold),
@@ -160,7 +161,7 @@ class DayView extends StatelessWidget {
                   ),
                   Padding(
                     padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
-                    child: Text('No Data Available',
+                    child: AutoSizeText('No Data Available',
                         style: GoogleFonts.poppins(
                             color: textColor,
                             fontSize: 25,

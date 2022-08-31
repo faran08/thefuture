@@ -31,7 +31,7 @@ class DesignNewCourse extends StatelessWidget {
   String typeOfCourse = '';
   late var fToast;
   bool recommenderON = true;
-
+  final TextEditingController _difficultyLevel = TextEditingController();
   Widget getBackButton() {
     return Padding(
       padding: EdgeInsets.fromLTRB(0, 0, 0, 20),
@@ -59,6 +59,7 @@ class DesignNewCourse extends StatelessWidget {
                 padding: EdgeInsets.fromLTRB(20, 0, 10, 0),
                 child: AutoSizeText(
                   'Back',
+                  maxLines: 1,
                   minFontSize: 15,
                   style: GoogleFonts.poppins(
                       color: textColor, fontWeight: FontWeight.bold),
@@ -92,6 +93,7 @@ class DesignNewCourse extends StatelessWidget {
               if (value.docs.isEmpty) {
                 designedCourses.add({
                   'courseType': typeOfCourse,
+                  'difficultyLevel': _difficultyLevel.text,
                   'fatherID':
                       teacherHomePageController.selectedCourseData['courseID'],
                   'userID': globalUserName,
@@ -141,6 +143,7 @@ class DesignNewCourse extends StatelessWidget {
                 padding: EdgeInsets.fromLTRB(20, 0, 10, 0),
                 child: AutoSizeText(
                   'Save',
+                  maxLines: 1,
                   minFontSize: 15,
                   style: GoogleFonts.poppins(
                       color: textColor, fontWeight: FontWeight.bold),
@@ -182,7 +185,7 @@ class DesignNewCourse extends StatelessWidget {
         Divider(
           color: Colors.black.withOpacity(0.8),
         ),
-        Text(
+        AutoSizeText(
           'Select Learning Method',
           style: GoogleFonts.poppins(
               color: textColor, fontWeight: FontWeight.bold),
@@ -214,7 +217,8 @@ class DesignNewCourse extends StatelessWidget {
                     height: 100,
                     child: Column(
                       children: [
-                        Text('Recommender',
+                        AutoSizeText('Recommender',
+                            maxLines: 1,
                             style: GoogleFonts.poppins(
                                 color: textColor,
                                 fontWeight: FontWeight.bold,
@@ -228,7 +232,8 @@ class DesignNewCourse extends StatelessWidget {
                     height: 100,
                     child: Column(
                       children: [
-                        Text('Personalized',
+                        AutoSizeText('Personalized',
+                            maxLines: 1,
                             style: GoogleFonts.poppins(
                                 color: textColor,
                                 fontWeight: FontWeight.bold,
@@ -263,6 +268,25 @@ class DesignNewCourse extends StatelessWidget {
                 ]),
           ),
         ),
+        Divider(
+          color: Colors.black.withOpacity(0.8),
+        ),
+        AutoSizeText(
+          'Course Difficulty Level',
+          style: GoogleFonts.poppins(
+              color: textColor, fontWeight: FontWeight.bold),
+        ),
+        SelectGroupCard(context, titles: const [
+          'Hard',
+          'Semi Hard',
+          'Normal',
+          'Average',
+          'Low Average',
+          'Below Average'
+        ], onTap: (title) {
+          debugPrint(title);
+          _difficultyLevel.text = title;
+        }),
       ],
     );
   }
@@ -274,8 +298,9 @@ class DesignNewCourse extends StatelessWidget {
         child: Scaffold(
       appBar: AppBar(
         leading: Container(),
-        title: Text(
+        title: AutoSizeText(
           'Available Courses',
+          maxLines: 1,
           style: GoogleFonts.poppins(
               color: textColor, fontSize: 25, fontWeight: FontWeight.bold),
         ),
