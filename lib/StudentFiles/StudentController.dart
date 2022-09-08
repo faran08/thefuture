@@ -25,20 +25,23 @@ class StudentController extends GetxController {
   CollectionReference joinedCourses =
       FirebaseFirestore.instance.collection('joinedCourses');
   ListView joinedCoursesNames = ListView();
-    CollectionReference entries =
+  CollectionReference entries =
       FirebaseFirestore.instance.collection('Entries');
   late QuerySnapshot<Object?> courseOverView_DesignCourse;
   bool courseOverView_DesignCourse_initialized = false;
   late DocumentSnapshot<Object?> courseOverView_DefineCourse;
   late var fToast;
   List<String> allSubjectNames = [];
+
   void getDefinedCourses(BuildContext context) async {
     var definedCoursesListTile = [];
     EasyLoading.show();
     fToast = FToast();
     fToast.init(context);
     definedCourses
-        .where('startDate', isGreaterThan: DateTime.now())
+        .where('startDate',
+            isGreaterThanOrEqualTo: DateTime(DateTime.now().year,
+                DateTime.now().month, DateTime.now().day, 0))
         .get()
         .then((value) {
       EasyLoading.dismiss();
@@ -429,186 +432,221 @@ class StudentController extends GetxController {
                                                               10)),
                                                   shadowColor: backGroundColor),
                                               onPressed: () {
-                                                EasyLoading.show();
-                                                designedCourses
-                                                    .where('fatherID',
+                                                joinedCourses
+                                                    .where('studentName',
+                                                        isEqualTo:
+                                                            globalUserName)
+                                                    .where('defineID',
                                                         isEqualTo: element.id)
                                                     .get()
-                                                    .then(
-                                                  (value) {
-                                                    if (value.docs.isNotEmpty) {
-                                                      EasyLoading.dismiss();
-                                                      int randomNumber =
-                                                          Random().nextInt(value
-                                                              .docs.length);
-                                                      String courseType = (value
-                                                                          .docs[
-                                                                              randomNumber]
-                                                                          .data()
-                                                                      as Map)[
-                                                                  'courseType'] ==
-                                                              'profileBased'
-                                                          ? 'Personalized Content Recommendation'
-                                                          : 'Rule Based Adaptive Learning';
-                                                      String courseTypeExplain = (value
-                                                                          .docs[
-                                                                              randomNumber]
-                                                                          .data()
-                                                                      as Map)[
-                                                                  'courseType'] ==
-                                                              'profileBased'
-                                                          ? 'It will collect your personalized data through survey and data entry fields, and then use that information to improve upon your course content'
-                                                          : 'It will gauge your performance & interests during the course, and will tailor course content accordingly.';
-                                                      getDialog(context, () {
-                                                        EasyLoading.show();
-                                                        joinedCourses
-                                                            .where(
-                                                                'studentName',
-                                                                isEqualTo:
-                                                                    globalUserName)
-                                                            .where('designID',
-                                                                isEqualTo: value
-                                                                    .docs[
-                                                                        randomNumber]
-                                                                    .id)
-                                                            .where('defineID',
-                                                                isEqualTo:
-                                                                    element.id)
-                                                            .get()
-                                                            .then(
-                                                                (checkDuplicate) {
-                                                          if (checkDuplicate
-                                                              .docs.isEmpty) {
-                                                            joinedCourses.add({
-                                                              'studentName':
-                                                                  globalUserName,
-                                                              'designID': value
-                                                                  .docs[
-                                                                      randomNumber]
-                                                                  .id,
-                                                              'defineID':
-                                                                  element.id,
-                                                              'courseType': (value
-                                                                          .docs[
-                                                                              randomNumber]
-                                                                          .data()
-                                                                      as Map)['courseType']
-                                                                  .toString(),
-                                                              'formFilled':
-                                                                  false,
-                                                              'courseStartDate':
-                                                                  (element.data()
-                                                                          as Map)[
-                                                                      'startDate'],
-                                                              'courseEndDate':
-                                                                  (element.data()
-                                                                          as Map)[
-                                                                      'finalExamDate'],
-                                                              'courseName': (element
-                                                                          .data()
-                                                                      as Map)[
-                                                                  'courseName'],
-                                                              'teacherName': (value
-                                                                      .docs[
-                                                                          randomNumber]
-                                                                      .data()
-                                                                  as Map)['userID']
-                                                            }).then(
-                                                                (addedValue) {
-                                                              EasyLoading
-                                                                  .dismiss();
-                                                              if ((value.docs[randomNumber]
-                                                                              .data()
-                                                                          as Map)['courseType']
-                                                                      .toString() ==
-                                                                  'profileBased') {
-                                                                fToast.showToast(
-                                                                    child: getToast(
-                                                                        JelloIn(
-                                                                            child:
-                                                                                const Icon(FontAwesomeIcons.info)),
-                                                                        'Course joined. Work Hard !'));
-                                                                Get.close(2);
-                                                                // Get.
-                                                                Get.to(() =>
-                                                                    StudentProfile(
-                                                                      parentDocument:
-                                                                          addedValue
-                                                                              .id,
-                                                                    ));
-                                                              } else {
-                                                                fToast.showToast(
-                                                                    child: getToast(
-                                                                        JelloIn(
-                                                                            child:
-                                                                                const Icon(FontAwesomeIcons.info)),
-                                                                        'Course joined. Work Hard !'));
-                                                                Get.close(3);
-                                                              }
-                                                            }).onError((error,
-                                                                stackTrace) {
-                                                              EasyLoading
-                                                                  .dismiss();
-                                                              Fluttertoast.showToast(
-                                                                  msg:
-                                                                      'Error: $error',
-                                                                  toastLength: Toast
-                                                                      .LENGTH_SHORT,
-                                                                  gravity:
-                                                                      ToastGravity
+                                                    .then((value) {
+                                                  EasyLoading.show();
+                                                  if (value.docs.isEmpty) {
+                                                    EasyLoading.show();
+                                                    designedCourses
+                                                        .where('fatherID',
+                                                            isEqualTo:
+                                                                element.id)
+                                                        .get()
+                                                        .then(
+                                                      (value) {
+                                                        if (value
+                                                            .docs.isNotEmpty) {
+                                                          EasyLoading.dismiss();
+                                                          getDialog(
+                                                              context,
+                                                              //Function Definiton For Rule Based//
+                                                              () {
+                                                                List<
+                                                                        QueryDocumentSnapshot<
+                                                                            Object?>>
+                                                                    ruleBased =
+                                                                    [];
+                                                                for (var element
+                                                                    in value
+                                                                        .docs) {
+                                                                  if ((element.data()
+                                                                              as Map)[
+                                                                          'courseType'] ==
+                                                                      'ruleBased') {
+                                                                    ruleBased.add(
+                                                                        element);
+                                                                  }
+                                                                }
+                                                                if (ruleBased
+                                                                    .isNotEmpty) {
+                                                                  EasyLoading
+                                                                      .show();
+                                                                  //Get Confirmation For Rule Based//
+                                                                  getDialog(
+                                                                      context,
+                                                                      //Function Definition if Rule Based Agreed To//
+                                                                      () {
+                                                                        int selectedNumber =
+                                                                            Random().nextInt(ruleBased.length);
+                                                                        String selectedID = ruleBased
+                                                                            .elementAt(selectedNumber)
+                                                                            .id;
+                                                                        print(
+                                                                            selectedID);
+                                                                        joinedCourses
+                                                                            .where('studentName',
+                                                                                isEqualTo: globalUserName)
+                                                                            .where('designID', isEqualTo: selectedID)
+                                                                            .where('defineID', isEqualTo: element.id)
+                                                                            .get()
+                                                                            .then((checkDuplicate) {
+                                                                          if (checkDuplicate
+                                                                              .docs
+                                                                              .isEmpty) {
+                                                                            joinedCourses.add({
+                                                                              'studentName': globalUserName,
+                                                                              'designID': selectedID,
+                                                                              'defineID': element.id,
+                                                                              'courseType': 'ruleBased',
+                                                                              'formFilled': false,
+                                                                              'courseStartDate': (element.data() as Map)['startDate'],
+                                                                              'courseEndDate': (element.data() as Map)['finalExamDate'],
+                                                                              'courseName': (element.data() as Map)['courseName'],
+                                                                              'teacherName': ruleBased.elementAt(selectedNumber)['userID']
+                                                                            }).then(
+                                                                                (addedValue) {
+                                                                              EasyLoading.dismiss();
+                                                                              Get.close(3);
+                                                                            }).onError((error,
+                                                                                stackTrace) {
+                                                                              EasyLoading.dismiss();
+                                                                              Fluttertoast.showToast(msg: 'Error: $error', toastLength: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM, timeInSecForIosWeb: 1, backgroundColor: Colors.grey, textColor: Colors.black, fontSize: 16.0);
+                                                                            });
+                                                                          } else {
+                                                                            fToast.showToast(child: getToast(JelloIn(child: const Icon(FontAwesomeIcons.cancel)), 'Join again? Eh.'));
+                                                                            EasyLoading.dismiss();
+                                                                            Get.close(3);
+                                                                          }
+                                                                        });
+                                                                      },
+                                                                      'Cancel',
+                                                                      'I Agree',
+                                                                      'Disclousure?',
+                                                                      'Do you agree conditions of this learning method',
+                                                                      () {
+                                                                        Get.close(
+                                                                            2);
+                                                                      });
+                                                                } else {
+                                                                  Fluttertoast.showToast(
+                                                                      msg:
+                                                                          'No Rule Based Defined Course Available',
+                                                                      toastLength:
+                                                                          Toast
+                                                                              .LENGTH_SHORT,
+                                                                      gravity: ToastGravity
                                                                           .BOTTOM,
-                                                                  timeInSecForIosWeb:
-                                                                      1,
-                                                                  backgroundColor:
-                                                                      Colors
-                                                                          .grey,
-                                                                  textColor:
-                                                                      Colors
-                                                                          .black,
-                                                                  fontSize:
-                                                                      16.0);
-                                                            });
-                                                          } else {
-                                                            fToast.showToast(
-                                                                child: getToast(
-                                                                    JelloIn(
-                                                                        child: const Icon(
-                                                                            FontAwesomeIcons.cancel)),
-                                                                    'Join again? Eh.'));
-                                                            EasyLoading
-                                                                .dismiss();
-                                                            Get.close(3);
-                                                          }
-                                                        });
+                                                                      timeInSecForIosWeb:
+                                                                          1,
+                                                                      backgroundColor:
+                                                                          Colors
+                                                                              .grey,
+                                                                      textColor:
+                                                                          Colors
+                                                                              .black,
+                                                                      fontSize:
+                                                                          16.0);
+                                                                  Get.close(1);
+                                                                }
+                                                              },
+                                                              'Personalized\nBased',
+                                                              'Rule\nBased',
+                                                              'Preferred course customization method?',
+                                                              'Personalized Based: It will collect your personalized data through survey and data entry fields, and then use that information to improve upon your course content.\nAdaptive E Learning: It will gauge your performance & interests during the course, and will tailor course content accordingly.',
+                                                              //Function Definition for Personalized Based//
+                                                              () {
+                                                                List<
+                                                                        QueryDocumentSnapshot<
+                                                                            Object?>>
+                                                                    profileBased =
+                                                                    [];
+                                                                for (var element
+                                                                    in value
+                                                                        .docs) {
+                                                                  if ((element.data()
+                                                                              as Map)[
+                                                                          'courseType'] ==
+                                                                      'profileBased') {
+                                                                    profileBased
+                                                                        .add(
+                                                                            element);
+                                                                  }
+                                                                }
+                                                                if (profileBased
+                                                                    .isNotEmpty) {
+                                                                  Get.to(StudentProfile(
+                                                                      parentDocuments:
+                                                                          profileBased));
+                                                                } else {
+                                                                  Fluttertoast.showToast(
+                                                                      msg:
+                                                                          'No Profile Based Defined Course Available',
+                                                                      toastLength:
+                                                                          Toast
+                                                                              .LENGTH_SHORT,
+                                                                      gravity: ToastGravity
+                                                                          .BOTTOM,
+                                                                      timeInSecForIosWeb:
+                                                                          1,
+                                                                      backgroundColor:
+                                                                          Colors
+                                                                              .grey,
+                                                                      textColor:
+                                                                          Colors
+                                                                              .black,
+                                                                      fontSize:
+                                                                          16.0);
+                                                                  Get.close(1);
+                                                                }
+                                                              });
+                                                        } else {
+                                                          fToast.showToast(
+                                                              child: getToast(
+                                                                  JelloIn(
+                                                                      child: const Icon(
+                                                                          FontAwesomeIcons
+                                                                              .cancel)),
+                                                                  'No course material available.'));
+                                                          Get.close(2);
+                                                        }
                                                       },
-                                                          'Cancel',
-                                                          'I Agree',
-                                                          'Disclousure: Do you agree?',
-                                                          'The course is "$courseType" based which means that: \n$courseTypeExplain.');
-                                                    } else {
-                                                      fToast.showToast(
-                                                          child: getToast(
-                                                              JelloIn(
-                                                                  child: const Icon(
-                                                                      FontAwesomeIcons
-                                                                          .cancel)),
-                                                              'No course material available.'));
-                                                      Get.close(2);
-                                                    }
-                                                  },
-                                                ).onError((error, stackTrace) {
-                                                  Fluttertoast.showToast(
-                                                      msg: 'Error: $error',
-                                                      toastLength:
-                                                          Toast.LENGTH_SHORT,
-                                                      gravity:
-                                                          ToastGravity.BOTTOM,
-                                                      timeInSecForIosWeb: 1,
-                                                      backgroundColor:
-                                                          Colors.grey,
-                                                      textColor: Colors.black,
-                                                      fontSize: 16.0);
-                                                  EasyLoading.dismiss();
+                                                    ).onError((error,
+                                                            stackTrace) {
+                                                      Fluttertoast.showToast(
+                                                          msg: 'Error: $error',
+                                                          toastLength: Toast
+                                                              .LENGTH_SHORT,
+                                                          gravity: ToastGravity
+                                                              .BOTTOM,
+                                                          timeInSecForIosWeb: 1,
+                                                          backgroundColor:
+                                                              Colors.grey,
+                                                          textColor:
+                                                              Colors.black,
+                                                          fontSize: 16.0);
+                                                      EasyLoading.dismiss();
+                                                    });
+                                                  } else {
+                                                    EasyLoading.dismiss();
+                                                    Fluttertoast.showToast(
+                                                        msg:
+                                                            'Course Already Joined',
+                                                        toastLength:
+                                                            Toast.LENGTH_SHORT,
+                                                        gravity:
+                                                            ToastGravity.BOTTOM,
+                                                        timeInSecForIosWeb: 1,
+                                                        backgroundColor:
+                                                            Colors.grey,
+                                                        textColor: Colors.black,
+                                                        fontSize: 16.0);
+                                                  }
                                                 });
                                               },
                                               child: Row(
@@ -691,17 +729,11 @@ class StudentController extends GetxController {
       for (var element in data.docs) {
         joinedCoursesListTileTemp.add(ListTile(
             onTap: () {
-              if (((element.data() as Map)['formFilled'] as bool) == true) {
-                Get.to(CourseOverView(
-                  designID: (element.data() as Map)['designID'],
-                  parentID: element.id,
-                  defineID: (element.data() as Map)['defineID'],
-                ));
-              } else {
-                Get.to(StudentProfile(
-                  parentDocument: element.id,
-                ));
-              }
+              Get.to(CourseOverView(
+                designID: (element.data() as Map)['designID'],
+                parentID: element.id,
+                defineID: (element.data() as Map)['defineID'],
+              ));
             },
             title: Text(
               (element.data() as Map)['courseName'],
@@ -738,7 +770,7 @@ class StudentController extends GetxController {
       String documentIDDesign, String documentIDDefine) async {
     EasyLoading.show();
     courseOverView_DesignCourse =
-        await entries.where('designURL',isEqualTo: documentIDDesign).get();
+        await entries.where('designURL', isEqualTo: documentIDDesign).get();
     courseOverView_DefineCourse =
         await definedCourses.doc(documentIDDefine).get();
     EasyLoading.dismiss();

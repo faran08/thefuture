@@ -28,7 +28,7 @@ class DesignNewCourse extends StatelessWidget {
   TabContainerController containerController =
       TabContainerController(length: 2);
 
-  String typeOfCourse = '';
+  String typeOfCourse = 'ruleBased';
   late var fToast;
   bool recommenderON = true;
   final TextEditingController _difficultyLevel = TextEditingController();

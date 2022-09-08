@@ -55,9 +55,10 @@ class AdminStateControllers extends GetxController {
                       margin: EdgeInsets.fromLTRB(0, 5, 0, 0),
                       height: 50,
                       child: GridView.builder(
+                          scrollDirection: Axis.horizontal,
                           gridDelegate:
                               SliverGridDelegateWithFixedCrossAxisCount(
-                                  mainAxisExtent: 25, crossAxisCount: 3),
+                                  mainAxisExtent: 100, crossAxisCount: 2),
                           itemCount:
                               ((element.data() as Map)['subTags'] as List)
                                   .length,
@@ -70,9 +71,10 @@ class AdminStateControllers extends GetxController {
                               ),
                               padding: EdgeInsets.all(3),
                               child: Center(
-                                child: AutoSizeText(
+                                child: Text(
                                   (element.data() as Map)['subTags'][index],
                                   style: TextStyle(color: textColor),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             );
@@ -213,8 +215,12 @@ class AdminStateControllers extends GetxController {
                                                     'firstSessionalDate']
                                                 as Timestamp)
                                             .toDate()
-                                            .isAfter(DateTime.now()
-                                                .subtract(Duration(days: 1)))
+                                            .add(Duration(days: 1))
+                                            .isAfter(DateTime(
+                                                DateTime.now().year,
+                                                DateTime.now().month,
+                                                DateTime.now().day,
+                                                0))
                                         ? TextButton(
                                             style: TextButton.styleFrom(
                                                 backgroundColor: buttonColor,
@@ -324,7 +330,12 @@ class AdminStateControllers extends GetxController {
                                     ((element.data() as Map)['midTermDate']
                                                 as Timestamp)
                                             .toDate()
-                                            .isAfter(DateTime.now())
+                                            .add(Duration(days: 1))
+                                            .isAfter(DateTime(
+                                                DateTime.now().year,
+                                                DateTime.now().month,
+                                                DateTime.now().day,
+                                                0))
                                         ? Padding(
                                             padding: EdgeInsets.fromLTRB(
                                                 0, 10, 0, 0),
@@ -457,7 +468,12 @@ class AdminStateControllers extends GetxController {
                                                     'secondSessionalDate']
                                                 as Timestamp)
                                             .toDate()
-                                            .isAfter(DateTime.now())
+                                            .add(Duration(days: 1))
+                                            .isAfter(DateTime(
+                                                DateTime.now().year,
+                                                DateTime.now().month,
+                                                DateTime.now().day,
+                                                0))
                                         ? Padding(
                                             padding: EdgeInsets.fromLTRB(
                                                 0, 10, 0, 0),
@@ -591,7 +607,12 @@ class AdminStateControllers extends GetxController {
                                     ((element.data() as Map)['finalExamDate']
                                                 as Timestamp)
                                             .toDate()
-                                            .isAfter(DateTime.now())
+                                            .add(Duration(days: 1))
+                                            .isAfter(DateTime(
+                                                DateTime.now().year,
+                                                DateTime.now().month,
+                                                DateTime.now().day,
+                                                0))
                                         ? Padding(
                                             padding: EdgeInsets.fromLTRB(
                                                 0, 10, 0, 0),

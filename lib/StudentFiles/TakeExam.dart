@@ -1,9 +1,11 @@
 // ignore_for_file: prefer_const_constructors, prefer_interpolation_to_compose_strings
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_ml_custom/firebase_ml_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -11,6 +13,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:select_card/select_card.dart';
 import 'package:thefuture/globals.dart';
+import 'package:tflite_flutter/tflite_flutter.dart' as tfl;
 
 import '../LoginFiles/StateControllers/StudentNameController.dart';
 
@@ -43,7 +46,6 @@ class TakeExam extends StatelessWidget {
 
   void startTimer() {
     const oneSec = Duration(seconds: 1);
-
     _timer = Timer.periodic(
       oneSec,
       (Timer timer) {
@@ -68,18 +70,134 @@ class TakeExam extends StatelessWidget {
     }).then((value) => examResultID = value.id);
   }
 
+  static Future<File> loadModelFromFirebase() async {
+    try {
+      // Create model with a name that is specified in the Firebase console
+      final model = FirebaseCustomRemoteModel('LearningStyle');
+
+      // Specify conditions when the model can be downloaded.
+      // If there is no wifi access when the app is started,
+      // this app will continue loading until the conditions are satisfied.
+      final conditions = FirebaseModelDownloadConditions();
+
+      // Create model manager associated with default Firebase App instance.
+      final modelManager = FirebaseModelManager.instance;
+
+      // Begin downloading and wait until the model is downloaded successfully.
+      await modelManager.download(model, conditions);
+      Fluttertoast.showToast(
+          msg: 'Model Downloaded',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.grey,
+          textColor: Colors.black,
+          fontSize: 16.0);
+      assert(await modelManager.isModelDownloaded(model) == true);
+      Fluttertoast.showToast(
+          msg: 'Model Applied',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.grey,
+          textColor: Colors.black,
+          fontSize: 16.0);
+      // Get latest model file to use it for inference by the interpreter.
+      var modelFile = await modelManager.getLatestModelFile(model);
+      assert(modelFile != null);
+      return modelFile;
+    } catch (exception) {
+      Fluttertoast.showToast(
+          msg: 'Failed on loading your model from Firebase: $exception',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.grey,
+          textColor: Colors.black,
+          fontSize: 16.0);
+      Fluttertoast.showToast(
+          msg: 'The program will not be resumed',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.grey,
+          textColor: Colors.black,
+          fontSize: 16.0);
+      print('Failed on loading your model from Firebase: $exception');
+      print('The program will not be resumed');
+      rethrow;
+    }
+  }
+
+  Future<List<dynamic>> getOutput(var data, File value) async {
+    final interpreter = tfl.Interpreter.fromFile(value);
+    var input = data;
+
+    // if output tensor shape [1,2] and type is float32
+    var output = List.filled(1, 1).reshape([1, 1]);
+    // double output = 0;
+    // var output;
+
+    // inference
+    interpreter.run(input, output);
+
+    // print the output
+
+    return output;
+  }
+
+  String decodeLearningStyle(double input) {
+    if (input < 1) {
+      return 'Reading & Writing';
+    } else if (input >= 1 && input < 2) {
+      return 'Auditory';
+    } else if (input >= 2 && input < 3) {
+      return 'Visual';
+    } else {
+      return 'Kinesthetic';
+    }
+  }
+
   void saveResults() {
     List<Map> saveQuestionsMap = [];
     int totalMarks = 0;
+    int article_obtained = 0;
+    int audio_obtained = 0;
+    int video_obtained = 0;
+
+    int article_total = 1;
+    int audio_total = 1;
+    int video_total = 1;
+
+    for (var element in allQuestions.docs) {
+      if ((element.data() as Map)['asset_Type'].toString() == 'Article Link') {
+        article_total++;
+      } else if ((element.data() as Map)['asset_Type'].toString() ==
+          'Audio Link') {
+        audio_total++;
+      } else if ((element.data() as Map)['asset_Type'].toString() ==
+          'Video Link') {
+        video_total++;
+      }
+    }
+
     for (var i = 0; i < allQuestions.docs.length; i++) {
       saveQuestionsMap.add({
         'questionID': allQuestions.docs[i].id,
         'correctAnswer': allQuestions.docs[i]['correctAnswer'],
         'userAnswer': answersToQuestions[i],
-        'tags': allQuestions.docs[i]['tags']
+        'tags': allQuestions.docs[i]['tags'],
+        'assetType': allQuestions.docs[i]['asset_Type']
       });
       if (allQuestions.docs[i]['correctAnswer'] == answersToQuestions[i]) {
         totalMarks++;
+        if (allQuestions.docs[i]['asset_Type'] == 'Article Link') {
+          article_obtained++;
+        } else if (allQuestions.docs[i]['asset_Type'] == 'Audio Link') {
+          audio_obtained++;
+        } else if (allQuestions.docs[i]['asset_Type'] == 'Video Link') {
+          video_obtained++;
+        }
       }
     }
     EasyLoading.show();
@@ -87,6 +205,29 @@ class TakeExam extends StatelessWidget {
       'resultData': saveQuestionsMap,
       'correctAnswers': totalMarks.toString()
     }).then((value) {
+      loadModelFromFirebase().then((value) => {
+            getOutput([
+              [
+                article_total.toDouble(),
+                audio_total.toDouble(),
+                video_total.toDouble(),
+                ((totalMarks / allQuestions.docs.length) * 100).toDouble(),
+                ((article_obtained / article_total) * 100).toDouble(),
+                ((audio_obtained / audio_total) * 100).toDouble(),
+                ((video_obtained / video_total) * 100).toDouble(),
+              ]
+            ], value)
+                .then((value) {
+              Fluttertoast.showToast(
+                  msg: decodeLearningStyle(value[0][0]).toString(),
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.BOTTOM,
+                  timeInSecForIosWeb: 1,
+                  backgroundColor: Colors.grey,
+                  textColor: Colors.black,
+                  fontSize: 16.0);
+            })
+          });
       EasyLoading.dismiss();
       Get.close(2);
       Get.bottomSheet(

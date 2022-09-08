@@ -33,34 +33,88 @@ class CourseOverView extends StatelessWidget {
       FirebaseFirestore.instance.collection('definedCourses');
   CollectionReference examResults =
       FirebaseFirestore.instance.collection('ExamResults');
+  CollectionReference exam = FirebaseFirestore.instance.collection('Exams');
   StudentController studentController = Get.put(StudentController());
   ScrollController scrollController = ScrollController();
-  bool checkIfExam(DateTime inputDate) {
-    int articleURL = 0;
-    int audioURL = 0;
-    int videoURL = 0;
-    int examQuestions = 0;
 
-    for (var element in studentController.courseOverView_DesignCourse.docs) {
-      if (DateTime.fromMillisecondsSinceEpoch(
-                  ((element.data() as Map)['dateForWhichURL'] as Timestamp)
-                      .millisecondsSinceEpoch)
-              .day ==
-          inputDate.day) {
-        if ((element.data() as Map)['entryType'] == 'Article') {
-          articleURL++;
-        } else if (((element.data() as Map)['entryType'] == 'Video')) {
-          videoURL++;
-        } else if (((element.data() as Map)['entryType'] == 'Audio')) {
-          audioURL++;
-        } else if (((element.data() as Map)['entryType'] == 'Exam')) {
-          examQuestions++;
-        }
-      }
-    }
-    if (examQuestions > 0) {
+  bool checkIfExam(DateTime inputDate) {
+    if ((studentController.courseOverView_DefineCourse['firstSessionalDate']
+                as Timestamp)
+            .toDate()
+            .isAfter(
+                DateTime(inputDate.year, inputDate.month, inputDate.day, 0)) &&
+        (studentController.courseOverView_DefineCourse['firstSessionalDate']
+                as Timestamp)
+            .toDate()
+            .isBefore(
+                DateTime(inputDate.year, inputDate.month, inputDate.day, 24))) {
+      return true;
+    } else if ((studentController.courseOverView_DefineCourse['midTermDate']
+                as Timestamp)
+            .toDate()
+            .isAfter(
+                DateTime(inputDate.year, inputDate.month, inputDate.day, 0)) &&
+        (studentController.courseOverView_DefineCourse['midTermDate']
+                as Timestamp)
+            .toDate()
+            .isBefore(
+                DateTime(inputDate.year, inputDate.month, inputDate.day, 24))) {
+      return true;
+    } else if ((studentController
+                    .courseOverView_DefineCourse['secondSessionalDate']
+                as Timestamp)
+            .toDate()
+            .isAfter(
+                DateTime(inputDate.year, inputDate.month, inputDate.day, 0)) &&
+        (studentController.courseOverView_DefineCourse['secondSessionalDate']
+                as Timestamp)
+            .toDate()
+            .isBefore(
+                DateTime(inputDate.year, inputDate.month, inputDate.day, 24))) {
+      return true;
+    } else if ((studentController.courseOverView_DefineCourse['finalExamDate']
+                as Timestamp)
+            .toDate()
+            .isAfter(
+                DateTime(inputDate.year, inputDate.month, inputDate.day, 0)) &&
+        (studentController.courseOverView_DefineCourse['finalExamDate']
+                as Timestamp)
+            .toDate()
+            .isBefore(
+                DateTime(inputDate.year, inputDate.month, inputDate.day, 24))) {
       return true;
     } else {
+      return false;
+    }
+  }
+
+  Future<bool> checkIfExamDataExist(DateTime inputDate) async {
+    EasyLoading.show();
+
+    var output = await exam
+        .where('defineURL', isEqualTo: defineID)
+        .where('designURL', isEqualTo: designID)
+        .where('dateForWhichURL',
+            isGreaterThanOrEqualTo:
+                DateTime(inputDate.year, inputDate.month, inputDate.day, 0))
+        .where('dateForWhichURL',
+            isLessThanOrEqualTo:
+                DateTime(inputDate.year, inputDate.month, inputDate.day, 24))
+        .limit(1)
+        .get();
+    if (output.docs.isNotEmpty) {
+      EasyLoading.dismiss();
+      return true;
+    } else {
+      EasyLoading.dismiss();
+      Fluttertoast.showToast(
+          msg: 'Exam does not exist yet',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.grey,
+          textColor: Colors.black,
+          fontSize: 16.0);
       return false;
     }
   }
@@ -232,9 +286,12 @@ class CourseOverView extends StatelessWidget {
                                         appBar: AppBar(
                                           backgroundColor: backGroundColor,
                                           elevation: 0,
-                                          title: Icon(
-                                            Icons.linear_scale_outlined,
-                                            color: textColor,
+                                          title: Text(
+                                            'Results',
+                                            style: GoogleFonts.poppins(
+                                                color: textColor,
+                                                fontSize: 25,
+                                                fontWeight: FontWeight.bold),
                                           ),
                                           centerTitle: true,
                                           leading: Container(),
@@ -781,268 +838,252 @@ class CourseOverView extends StatelessWidget {
                                   decoration: BoxDecoration(
                                       color: Colors.white,
                                       borderRadius: BorderRadius.circular(10)),
-                                  child: DateTime.fromMillisecondsSinceEpoch(
-                                                  (((studentController
-                                                              .courseOverView_DefineCourse
-                                                              .data() as Map)[
-                                                          'startDate']) as Timestamp)
-                                                      .millisecondsSinceEpoch)
-                                              .add(Duration(days: index))
-                                              .day <=
-                                          DateTime.now().day
+                                  child: (((studentController
+                                                  .courseOverView_DefineCourse
+                                                  .data() as Map)['startDate'])
+                                              as Timestamp)
+                                          .toDate()
+                                          .add(Duration(days: index))
+                                          .isBefore(DateTime(
+                                              DateTime.now().year,
+                                              DateTime.now().month,
+                                              DateTime.now().day + 1))
                                       ? Material(
                                           color: Colors.transparent,
                                           child: InkWell(
                                             onTap: () {
-                                              if (checkIfExam(DateTime.fromMillisecondsSinceEpoch(
-                                                          (((studentController
-                                                                          .courseOverView_DefineCourse
-                                                                          .data()
-                                                                      as Map)['startDate'])
-                                                                  as Timestamp)
-                                                              .millisecondsSinceEpoch)
+                                              if (checkIfExam((((studentController
+                                                                  .courseOverView_DefineCourse
+                                                                  .data() as Map)[
+                                                              'startDate'])
+                                                          as Timestamp)
+                                                      .toDate()
                                                       .add(Duration(
                                                           days: index))) ==
                                                   true) {
-                                                Get.bottomSheet(
-                                                    BottomSheet(
-                                                        enableDrag: false,
-                                                        onClosing: () {},
-                                                        builder: (context) {
-                                                          return SizedBox(
-                                                            height: MediaQuery.of(
-                                                                        context)
-                                                                    .size
-                                                                    .height *
-                                                                0.95,
-                                                            child: Scaffold(
-                                                              backgroundColor:
-                                                                  backGroundColor,
-                                                              appBar: AppBar(
-                                                                backgroundColor:
-                                                                    backGroundColor,
-                                                                elevation: 0,
-                                                                title: Text(
-                                                                  'Warning',
-                                                                  style: TextStyle(
-                                                                      color: Colors
-                                                                          .red,
-                                                                      fontSize:
-                                                                          25),
-                                                                ),
-                                                              ),
-                                                              body: Padding(
-                                                                padding:
-                                                                    EdgeInsets
+                                                checkIfExamDataExist(
+                                                        (((studentController.courseOverView_DefineCourse
+                                                                            .data()
+                                                                        as Map)[
+                                                                    'startDate'])
+                                                                as Timestamp)
+                                                            .toDate()
+                                                            .add(Duration(
+                                                                days: index)))
+                                                    .then((value) {
+                                                  if (value == true) {
+                                                    Get.bottomSheet(
+                                                        BottomSheet(
+                                                            enableDrag: false,
+                                                            onClosing: () {},
+                                                            builder: (context) {
+                                                              return SizedBox(
+                                                                height: MediaQuery.of(
+                                                                            context)
+                                                                        .size
+                                                                        .height *
+                                                                    0.95,
+                                                                child: Scaffold(
+                                                                  backgroundColor:
+                                                                      backGroundColor,
+                                                                  appBar:
+                                                                      AppBar(
+                                                                    backgroundColor:
+                                                                        backGroundColor,
+                                                                    elevation:
+                                                                        0,
+                                                                    title: Text(
+                                                                      'Warning',
+                                                                      style: TextStyle(
+                                                                          color: Colors
+                                                                              .red,
+                                                                          fontSize:
+                                                                              25),
+                                                                    ),
+                                                                  ),
+                                                                  body: Padding(
+                                                                    padding: EdgeInsets
                                                                         .fromLTRB(
                                                                             10,
                                                                             10,
                                                                             10,
                                                                             10),
-                                                                child: Column(
-                                                                  children: [
-                                                                    Column(
+                                                                    child:
+                                                                        Column(
                                                                       children: [
-                                                                        Text(
-                                                                          'Please carefully read below before proceeding.',
-                                                                          style:
-                                                                              GoogleFonts.openSans(
-                                                                            color:
-                                                                                textColor,
-                                                                            fontSize:
-                                                                                18,
-                                                                          ),
-                                                                          textAlign:
-                                                                              TextAlign.justify,
+                                                                        Column(
+                                                                          children: [
+                                                                            Text(
+                                                                              'Please carefully read below before proceeding.',
+                                                                              style: GoogleFonts.openSans(
+                                                                                color: textColor,
+                                                                                fontSize: 18,
+                                                                              ),
+                                                                              textAlign: TextAlign.justify,
+                                                                            ),
+                                                                            Text(
+                                                                              '1. You will not be able to quit once the exam has started.',
+                                                                              style: GoogleFonts.openSans(
+                                                                                color: textColor,
+                                                                                fontSize: 18,
+                                                                              ),
+                                                                              textAlign: TextAlign.justify,
+                                                                            ),
+                                                                            Text(
+                                                                              '2. Make sure you have working internet connection. College will not entertain any follow up requests due to your lose connection.',
+                                                                              style: GoogleFonts.openSans(
+                                                                                color: textColor,
+                                                                                fontSize: 18,
+                                                                              ),
+                                                                              textAlign: TextAlign.justify,
+                                                                            ),
+                                                                            Text(
+                                                                              '3. Make sure not to disconnect/ exit the app due to exam pressure, it will automatically result in zero marks.',
+                                                                              style: GoogleFonts.openSans(
+                                                                                color: textColor,
+                                                                                fontSize: 18,
+                                                                              ),
+                                                                              textAlign: TextAlign.justify,
+                                                                            ),
+                                                                            Text(
+                                                                              '4. Start the exam at your own comfort, you have complete day to start its attemp.',
+                                                                              style: GoogleFonts.openSans(
+                                                                                color: textColor,
+                                                                                fontSize: 18,
+                                                                              ),
+                                                                              textAlign: TextAlign.justify,
+                                                                            ),
+                                                                            Text(
+                                                                              '5. Remember to submit the exam. If not submitted it will result in zero marks.',
+                                                                              style: GoogleFonts.openSans(
+                                                                                color: textColor,
+                                                                                fontSize: 18,
+                                                                              ),
+                                                                              textAlign: TextAlign.justify,
+                                                                            ),
+                                                                          ],
                                                                         ),
-                                                                        Text(
-                                                                          '1. You will not be able to quit once the exam has started.',
-                                                                          style:
-                                                                              GoogleFonts.openSans(
-                                                                            color:
-                                                                                textColor,
-                                                                            fontSize:
-                                                                                18,
-                                                                          ),
-                                                                          textAlign:
-                                                                              TextAlign.justify,
-                                                                        ),
-                                                                        Text(
-                                                                          '2. Make sure you have working internet connection. College will not entertain any follow up requests due to your lose connection.',
-                                                                          style:
-                                                                              GoogleFonts.openSans(
-                                                                            color:
-                                                                                textColor,
-                                                                            fontSize:
-                                                                                18,
-                                                                          ),
-                                                                          textAlign:
-                                                                              TextAlign.justify,
-                                                                        ),
-                                                                        Text(
-                                                                          '3. Make sure not to disconnect/ exit the app due to exam pressure, it will automatically result in zero marks.',
-                                                                          style:
-                                                                              GoogleFonts.openSans(
-                                                                            color:
-                                                                                textColor,
-                                                                            fontSize:
-                                                                                18,
-                                                                          ),
-                                                                          textAlign:
-                                                                              TextAlign.justify,
-                                                                        ),
-                                                                        Text(
-                                                                          '4. Start the exam at your own comfort, you have complete day to start its attemp.',
-                                                                          style:
-                                                                              GoogleFonts.openSans(
-                                                                            color:
-                                                                                textColor,
-                                                                            fontSize:
-                                                                                18,
-                                                                          ),
-                                                                          textAlign:
-                                                                              TextAlign.justify,
-                                                                        ),
-                                                                        Text(
-                                                                          '5. Remember to submit the exam. If not submitted it will result in zero marks.',
-                                                                          style:
-                                                                              GoogleFonts.openSans(
-                                                                            color:
-                                                                                textColor,
-                                                                            fontSize:
-                                                                                18,
-                                                                          ),
-                                                                          textAlign:
-                                                                              TextAlign.justify,
-                                                                        ),
-                                                                      ],
-                                                                    ),
-                                                                    TextButton(
-                                                                        style: TextButton.styleFrom(
-                                                                            backgroundColor:
-                                                                                buttonColor,
-                                                                            elevation:
-                                                                                2,
-                                                                            shape: RoundedRectangleBorder(
-                                                                                borderRadius: BorderRadius.circular(
-                                                                                    10)),
-                                                                            shadowColor:
-                                                                                backGroundColor,
-                                                                            padding: EdgeInsets.fromLTRB(
-                                                                                10,
-                                                                                10,
-                                                                                10,
-                                                                                10)),
-                                                                        onPressed:
-                                                                            () {
-                                                                          EasyLoading
-                                                                              .show();
-                                                                          Get.close(
-                                                                              1);
-                                                                          if (!(((studentController.courseOverView_DefineCourse.data() as Map)['startDate']) as Timestamp)
-                                                                              .toDate()
-                                                                              .add(Duration(days: index))
-                                                                              .isAfter(getLastHourToday())) {
-                                                                            examResults.where('studentID', isEqualTo: globalUserName).where('defineID', isEqualTo: defineID).where('examDate', isGreaterThanOrEqualTo: getFirstHourOfDate((((studentController.courseOverView_DefineCourse.data() as Map)['startDate']) as Timestamp).toDate().add(Duration(days: index)))).where('examDate', isLessThanOrEqualTo: getLastHourOfDate((((studentController.courseOverView_DefineCourse.data() as Map)['startDate']) as Timestamp).toDate().add(Duration(days: index)))).get().then((value) {
-                                                                              if (value.docs.isEmpty) {
-                                                                                EasyLoading.dismiss();
-                                                                                Get.to(TakeExam(
-                                                                                  defineID: defineID,
-                                                                                  designID: designID,
-                                                                                  examDate: DateTime.fromMillisecondsSinceEpoch((((studentController.courseOverView_DefineCourse.data() as Map)['startDate']) as Timestamp).millisecondsSinceEpoch).add(
-                                                                                    Duration(days: index),
-                                                                                  ),
-                                                                                ));
+                                                                        TextButton(
+                                                                            style: TextButton.styleFrom(
+                                                                                backgroundColor: buttonColor,
+                                                                                elevation: 2,
+                                                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                                                                shadowColor: backGroundColor,
+                                                                                padding: EdgeInsets.fromLTRB(10, 10, 10, 10)),
+                                                                            onPressed: () {
+                                                                              EasyLoading.show();
+                                                                              Get.close(1);
+                                                                              if (!(((studentController.courseOverView_DefineCourse.data() as Map)['startDate']) as Timestamp).toDate().add(Duration(days: index)).isAfter(getLastHourToday())) {
+                                                                                examResults.where('studentID', isEqualTo: globalUserName).where('defineID', isEqualTo: defineID).where('examDate', isGreaterThanOrEqualTo: getFirstHourOfDate((((studentController.courseOverView_DefineCourse.data() as Map)['startDate']) as Timestamp).toDate().add(Duration(days: index)))).where('examDate', isLessThanOrEqualTo: getLastHourOfDate((((studentController.courseOverView_DefineCourse.data() as Map)['startDate']) as Timestamp).toDate().add(Duration(days: index)))).get().then((value) {
+                                                                                  if (value.docs.isEmpty) {
+                                                                                    EasyLoading.dismiss();
+                                                                                    Get.to(TakeExam(
+                                                                                      defineID: defineID,
+                                                                                      designID: designID,
+                                                                                      examDate: DateTime.fromMillisecondsSinceEpoch((((studentController.courseOverView_DefineCourse.data() as Map)['startDate']) as Timestamp).millisecondsSinceEpoch).add(
+                                                                                        Duration(days: index),
+                                                                                      ),
+                                                                                    ));
+                                                                                  } else {
+                                                                                    EasyLoading.dismiss();
+                                                                                    Fluttertoast.showToast(msg: 'Cannot attempt twice', toastLength: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM, timeInSecForIosWeb: 1, backgroundColor: Colors.grey, textColor: Colors.black, fontSize: 16.0);
+                                                                                    // var fToast = FToast();
+                                                                                    // fToast.init(context);
+                                                                                    // fToast.showToast(child: getToast(JelloIn(child: Icon(FontAwesomeIcons.cancel)), 'Cannot attempt twice'));
+                                                                                  }
+                                                                                });
                                                                               } else {
                                                                                 EasyLoading.dismiss();
-                                                                                Fluttertoast.showToast(msg: 'Cannot attempt twice', toastLength: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM, timeInSecForIosWeb: 1, backgroundColor: Colors.grey, textColor: Colors.black, fontSize: 16.0);
-                                                                                // var fToast = FToast();
-                                                                                // fToast.init(context);
-                                                                                // fToast.showToast(child: getToast(JelloIn(child: Icon(FontAwesomeIcons.cancel)), 'Cannot attempt twice'));
+                                                                                var fToast = FToast();
+                                                                                fToast.init(context);
+                                                                                fToast.showToast(child: getToast(JelloIn(child: Icon(FontAwesomeIcons.cancel)), 'Exam date has passed'));
                                                                               }
-                                                                            });
-                                                                          } else {
-                                                                            EasyLoading.dismiss();
-                                                                            var fToast =
-                                                                                FToast();
-                                                                            fToast.init(context);
-                                                                            fToast.showToast(child: getToast(JelloIn(child: Icon(FontAwesomeIcons.cancel)), 'Exam date has passed'));
-                                                                          }
-                                                                        },
-                                                                        child:
-                                                                            Row(
-                                                                          mainAxisSize:
-                                                                              MainAxisSize.min,
-                                                                          children: [
-                                                                            Padding(
-                                                                              padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                                                                              child: Icon(
-                                                                                Icons.done_outline_rounded,
-                                                                                color: Colors.green,
-                                                                                size: 30,
-                                                                              ),
-                                                                            ),
-                                                                            Padding(
-                                                                              padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
-                                                                              child: AutoSizeText(
-                                                                                'Agreed. Attemp!',
-                                                                                minFontSize: 20,
-                                                                                style: GoogleFonts.poppins(color: textColor, fontWeight: FontWeight.w600),
-                                                                              ),
-                                                                            )
-                                                                          ],
-                                                                        )),
-                                                                    Padding(
-                                                                      padding: EdgeInsets
-                                                                          .fromLTRB(
+                                                                            },
+                                                                            child: Row(
+                                                                              mainAxisSize: MainAxisSize.min,
+                                                                              children: [
+                                                                                Padding(
+                                                                                  padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                                                                                  child: Icon(
+                                                                                    Icons.done_outline_rounded,
+                                                                                    color: Colors.green,
+                                                                                    size: 30,
+                                                                                  ),
+                                                                                ),
+                                                                                Padding(
+                                                                                  padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
+                                                                                  child: AutoSizeText(
+                                                                                    'Agreed. Attemp!',
+                                                                                    minFontSize: 20,
+                                                                                    style: GoogleFonts.poppins(color: textColor, fontWeight: FontWeight.w600),
+                                                                                  ),
+                                                                                )
+                                                                              ],
+                                                                            )),
+                                                                        Padding(
+                                                                          padding: EdgeInsets.fromLTRB(
                                                                               0,
                                                                               20,
                                                                               0,
                                                                               0),
-                                                                      child: TextButton(
-                                                                          style: TextButton.styleFrom(backgroundColor: buttonColor, elevation: 2, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), shadowColor: backGroundColor, padding: EdgeInsets.fromLTRB(10, 10, 10, 10)),
-                                                                          onPressed: () {
-                                                                            Get.close(1);
-                                                                          },
-                                                                          child: Row(
-                                                                            mainAxisSize:
-                                                                                MainAxisSize.min,
-                                                                            children: [
-                                                                              Padding(
-                                                                                padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                                                                                child: Icon(
-                                                                                  Icons.cancel,
-                                                                                  color: Colors.red,
-                                                                                  size: 30,
-                                                                                ),
-                                                                              ),
-                                                                              Padding(
-                                                                                padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
-                                                                                child: AutoSizeText(
-                                                                                  'Reconsider',
-                                                                                  minFontSize: 20,
-                                                                                  style: GoogleFonts.poppins(color: textColor, fontWeight: FontWeight.w600),
-                                                                                ),
-                                                                              )
-                                                                            ],
-                                                                          )),
-                                                                    )
-                                                                  ],
+                                                                          child: TextButton(
+                                                                              style: TextButton.styleFrom(backgroundColor: buttonColor, elevation: 2, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), shadowColor: backGroundColor, padding: EdgeInsets.fromLTRB(10, 10, 10, 10)),
+                                                                              onPressed: () {
+                                                                                Get.close(1);
+                                                                              },
+                                                                              child: Row(
+                                                                                mainAxisSize: MainAxisSize.min,
+                                                                                children: [
+                                                                                  Padding(
+                                                                                    padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                                                                                    child: Icon(
+                                                                                      Icons.cancel,
+                                                                                      color: Colors.red,
+                                                                                      size: 30,
+                                                                                    ),
+                                                                                  ),
+                                                                                  Padding(
+                                                                                    padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
+                                                                                    child: AutoSizeText(
+                                                                                      'Reconsider',
+                                                                                      minFontSize: 20,
+                                                                                      style: GoogleFonts.poppins(color: textColor, fontWeight: FontWeight.w600),
+                                                                                    ),
+                                                                                  )
+                                                                                ],
+                                                                              )),
+                                                                        )
+                                                                      ],
+                                                                    ),
+                                                                  ),
                                                                 ),
-                                                              ),
-                                                            ),
-                                                          );
-                                                        }),
-                                                    isScrollControlled: true);
+                                                              );
+                                                            }),
+                                                        isScrollControlled:
+                                                            true);
+                                                  } else {
+                                                    // Get.to(DayView(
+                                                    //   heading: (((studentController
+                                                    //                   .courseOverView_DefineCourse
+                                                    //                   .data() as Map)[
+                                                    //               'startDate'])
+                                                    //           as Timestamp)
+                                                    //       .toDate()
+                                                    //       .add(Duration(
+                                                    //           days: index)),
+                                                    //   inputDocument: studentController
+                                                    //       .courseOverView_DesignCourse,
+                                                    // ));
+                                                  }
+                                                });
                                               } else {
                                                 Get.to(DayView(
-                                                  heading: DateTime.fromMillisecondsSinceEpoch(
-                                                          (((studentController
-                                                                          .courseOverView_DefineCourse
-                                                                          .data()
-                                                                      as Map)['startDate'])
-                                                                  as Timestamp)
-                                                              .millisecondsSinceEpoch)
+                                                  heading: (((studentController
+                                                                  .courseOverView_DefineCourse
+                                                                  .data() as Map)[
+                                                              'startDate'])
+                                                          as Timestamp)
+                                                      .toDate()
                                                       .add(Duration(
                                                           days: index)),
                                                   inputDocument: studentController

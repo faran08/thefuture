@@ -43,6 +43,7 @@ class ExamEntries extends StatelessWidget {
   final TextEditingController _optionFour = TextEditingController();
   final TextEditingController _correctAnswer = TextEditingController();
   final TextEditingController _difficultyLevel = TextEditingController();
+  final TextEditingController _linkType = TextEditingController();
   List<String> tagValues = [];
   GlobalKey<FormState> formKey = GlobalKey();
 
@@ -192,6 +193,24 @@ class ExamEntries extends StatelessWidget {
                                 ], onTap: (title) {
                                   debugPrint(title);
                                   _difficultyLevel.text = title;
+                                }),
+                                Padding(
+                                  padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                  child: Text(
+                                    'Question was taken from',
+                                    style: GoogleFonts.poppins(
+                                        color: textColor,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                SelectGroupCard(context, titles: const [
+                                  'Article Link',
+                                  'Audio Link',
+                                  'Video Link',
+                                ], onTap: (title) {
+                                  debugPrint(title);
+                                  _linkType.text = title;
                                 }),
                                 Padding(
                                   padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
@@ -526,6 +545,7 @@ class ExamEntries extends StatelessWidget {
                                                     originalDocument.id,
                                                 'difficultyLevel':
                                                     _difficultyLevel.text,
+                                                'asset_Type': _linkType.text,
                                                 'questionStatement':
                                                     _questionStatement.text,
                                                 'optionOne': _optionOne.text,

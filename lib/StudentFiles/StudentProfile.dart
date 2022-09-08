@@ -1,4 +1,4 @@
-// ignore_for_file: must_be_immutable, prefer_const_constructors
+// ignore_for_file: must_be_immutable, prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'dart:ffi';
 import 'dart:io';
@@ -25,7 +25,8 @@ import '../globals.dart';
 
 class StudentProfile extends StatelessWidget {
   String parentDocument = '';
-  StudentProfile({Key? key, required this.parentDocument}) : super(key: key);
+  List<QueryDocumentSnapshot<Object?>> parentDocuments = [];
+  StudentProfile({Key? key, required this.parentDocuments}) : super(key: key);
   final StudentController studentController = Get.put(StudentController());
   final AdminStateControllers adminStateControllers =
       Get.put(AdminStateControllers());
@@ -99,6 +100,54 @@ class StudentProfile extends StatelessWidget {
   final TextEditingController bacherlorsSubject2 = TextEditingController();
   final TextEditingController bacherlorsSubject3 = TextEditingController();
   ////////////////////////////////////////////////
+  ///
+  int getDifficultyLevelToNumber(String input) {
+    switch (input) {
+      case 'Hard':
+        return 1;
+        break;
+      case 'Semi Hard':
+        return 2;
+        break;
+      case 'Normal':
+        return 3;
+        break;
+      case 'Average':
+        return 4;
+        break;
+      case 'Low Average':
+        return 5;
+        break;
+      case 'Below Average':
+        return 6;
+        break;
+      default:
+        return 3;
+    }
+  }
+
+  QueryDocumentSnapshot<Object?> getFirstWithMinDifficultyDifference(
+      int level) {
+    List<Map> difference = [];
+    var selectedDocument;
+    for (var element in parentDocuments) {
+      difference.add({
+        'difference': (getDifficultyLevelToNumber(
+                    (element.data() as Map)['difficultyLevel']) -
+                level)
+            .round()
+            .abs(),
+        'ID': element.id
+      });
+    }
+    difference.sort(((a, b) => a['difference'].compareTo(b['difference'])));
+    for (var element in parentDocuments) {
+      if (element.id == difference.first['ID']) {
+        selectedDocument = element;
+      }
+    }
+    return selectedDocument;
+  }
 
   List<List<double>> getFormattedData(
       String age,
@@ -332,21 +381,59 @@ class StudentProfile extends StatelessWidget {
       // Specify conditions when the model can be downloaded.
       // If there is no wifi access when the app is started,
       // this app will continue loading until the conditions are satisfied.
-      final conditions = FirebaseModelDownloadConditions(
-          androidRequireWifi: true, iosAllowCellularAccess: false);
+      final conditions = FirebaseModelDownloadConditions();
 
       // Create model manager associated with default Firebase App instance.
       final modelManager = FirebaseModelManager.instance;
 
       // Begin downloading and wait until the model is downloaded successfully.
       await modelManager.download(model, conditions);
+      Fluttertoast.showToast(
+          msg: 'Model Downloaded',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.grey,
+          textColor: Colors.black,
+          fontSize: 16.0);
       assert(await modelManager.isModelDownloaded(model) == true);
-
+      Fluttertoast.showToast(
+          msg: 'Model Applied',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.grey,
+          textColor: Colors.black,
+          fontSize: 16.0);
       // Get latest model file to use it for inference by the interpreter.
       var modelFile = await modelManager.getLatestModelFile(model);
       assert(modelFile != null);
+      Fluttertoast.showToast(
+          msg: 'Returning',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.grey,
+          textColor: Colors.black,
+          fontSize: 16.0);
       return modelFile;
     } catch (exception) {
+      Fluttertoast.showToast(
+          msg: 'Failed on loading your model from Firebase: $exception',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.grey,
+          textColor: Colors.black,
+          fontSize: 16.0);
+      Fluttertoast.showToast(
+          msg: 'The program will not be resumed',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.grey,
+          textColor: Colors.black,
+          fontSize: 16.0);
       print('Failed on loading your model from Firebase: $exception');
       print('The program will not be resumed');
       rethrow;
@@ -1206,7 +1293,24 @@ class StudentProfile extends StatelessWidget {
                               padding: const EdgeInsets.fromLTRB(10, 5, 10, 5)),
                           onPressed: () {
                             EasyLoading.show();
+
+                            Fluttertoast.showToast(
+                                msg: 'Loading Started',
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.BOTTOM,
+                                timeInSecForIosWeb: 1,
+                                backgroundColor: Colors.grey,
+                                textColor: Colors.black,
+                                fontSize: 16.0);
                             loadModelFromFirebase().then((value) async {
+                              Fluttertoast.showToast(
+                                  msg: 'Model Applied',
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.BOTTOM,
+                                  timeInSecForIosWeb: 1,
+                                  backgroundColor: Colors.grey,
+                                  textColor: Colors.black,
+                                  fontSize: 16.0);
                               getOutput([
                                 getFormattedData(
                                     selectedAge!,
@@ -1222,6 +1326,14 @@ class StudentProfile extends StatelessWidget {
                                     double.parse(bachelorsCGPA.text))
                               ], value)
                                   .then((value) {
+                                Fluttertoast.showToast(
+                                    msg: 'Data Converted',
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    gravity: ToastGravity.BOTTOM,
+                                    timeInSecForIosWeb: 1,
+                                    backgroundColor: Colors.grey,
+                                    textColor: Colors.black,
+                                    fontSize: 16.0);
                                 String outputDifficultyLevel = 'Hard';
                                 switch ((value[0][0] as double).floor()) {
                                   case 0:
@@ -1237,15 +1349,19 @@ class StudentProfile extends StatelessWidget {
                                     outputDifficultyLevel = 'Normal';
                                     break;
                                   case 4:
-                                    outputDifficultyLevel = 'Low Average';
+                                    outputDifficultyLevel = 'Average';
                                     break;
                                   case 5:
+                                    outputDifficultyLevel = 'Low Average';
+                                    break;
+                                  case 6:
                                     outputDifficultyLevel = 'Below Average';
                                     break;
                                   default:
                                     outputDifficultyLevel = 'Below Average';
                                     break;
                                 }
+
                                 Fluttertoast.showToast(
                                     msg: outputDifficultyLevel,
                                     toastLength: Toast.LENGTH_SHORT,
@@ -1254,57 +1370,247 @@ class StudentProfile extends StatelessWidget {
                                     backgroundColor: Colors.grey,
                                     textColor: Colors.black,
                                     fontSize: 16.0);
+                                EasyLoading.show();
+                                QueryDocumentSnapshot<Object?> designDocument =
+                                    getFirstWithMinDifficultyDifference(
+                                        (value[0][0] as double).floor());
+                                studentProfiles.add({
+                                  'age': selectedAge,
+                                  'gender': selectedGender,
+                                  'ethnicity': selectedEthncity,
+                                  'degree': selectedDegree,
+                                  'employment': selectedEmployment,
+                                  'residency': selectedResidency,
+                                  'major': selectedMajor,
+                                  'country': selectedCountry,
+                                  'oLevelPercentage': oLevelPercentage.text,
+                                  'aLevelPercentage': aLevelPercentage.text,
+                                  'bachelorsCGPA': bachelorsCGPA.text,
+                                  'aLevelSubject': aLevelSubject.text,
+                                  'oLevelSubject': oLevelSubject.text,
+                                  'bachelorsSubject1': bacherlorsSubject1.text,
+                                  'bachelorsSubject2': bacherlorsSubject2.text,
+                                  'bachelorsSubject3': bacherlorsSubject3.text,
+                                  'createdOn': DateTime.now(),
+                                  'designID': designDocument.id,
+                                  'defineID': (designDocument.data()
+                                      as Map)['fatherID'],
+                                  'studentName': globalUserName,
+                                }).then((value) {
+                                  EasyLoading.dismiss();
+                                  Fluttertoast.showToast(
+                                      msg: 'Student Profile Added',
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.BOTTOM,
+                                      timeInSecForIosWeb: 1,
+                                      backgroundColor: Colors.grey,
+                                      textColor: Colors.black,
+                                      fontSize: 16.0);
+                                  var fToast = FToast();
+                                  fToast.init(context);
+                                  fToast.showToast(
+                                      child: getToast(
+                                          JelloIn(
+                                              child:
+                                                  Icon(FontAwesomeIcons.check)),
+                                          'Form Submitted Successfully'));
+                                  EasyLoading.show();
+                                  joinedCourses.add({
+                                    'studentName': globalUserName,
+                                    'designID': designDocument.id,
+                                    'defineID': (designDocument.data()
+                                        as Map)['fatherID'],
+                                    'courseType': 'profileBased',
+                                    'formFilled': true,
+                                    'courseStartDate': (designDocument.data()
+                                        as Map)['startDate'],
+                                    'courseEndDate': (designDocument.data()
+                                        as Map)['finalExamDate'],
+                                    'courseName': (designDocument.data()
+                                        as Map)['courseName'],
+                                    'teacherName':
+                                        (designDocument.data() as Map)['userID']
+                                  }).then((addedValue) {
+                                    Fluttertoast.showToast(
+                                        msg: 'Course Added',
+                                        toastLength: Toast.LENGTH_SHORT,
+                                        gravity: ToastGravity.BOTTOM,
+                                        timeInSecForIosWeb: 1,
+                                        backgroundColor: Colors.grey,
+                                        textColor: Colors.black,
+                                        fontSize: 16.0);
+                                    EasyLoading.dismiss();
+                                    Get.bottomSheet(
+                                        BottomSheet(
+                                            enableDrag: false,
+                                            onClosing: () {
+                                              Get.close(3);
+                                            },
+                                            builder: ((context) {
+                                              return WillPopScope(
+                                                  child: Container(
+                                                    height:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .height *
+                                                            0.95,
+                                                    child: Scaffold(
+                                                      backgroundColor:
+                                                          backGroundColor,
+                                                      appBar: AppBar(
+                                                        leading: Container(),
+                                                        backgroundColor:
+                                                            backGroundColor,
+                                                        elevation: 0,
+                                                        centerTitle: true,
+                                                        title: Text(
+                                                          'Course Joined',
+                                                          style: TextStyle(
+                                                              color: Colors.red,
+                                                              fontSize: 25,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                        ),
+                                                      ),
+                                                      body: Center(
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .center,
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Icon(
+                                                              Icons
+                                                                  .celebration_rounded,
+                                                              color:
+                                                                  Colors.green,
+                                                              size: 75,
+                                                            ),
+                                                            Padding(
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .fromLTRB(
+                                                                          0,
+                                                                          20,
+                                                                          0,
+                                                                          20),
+                                                              child: Text(
+                                                                'Out of total ${parentDocuments.length} course available',
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .black,
+                                                                    fontSize:
+                                                                        18,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .normal),
+                                                              ),
+                                                            ),
+                                                            Text(
+                                                              'as per your difficulty level',
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .black,
+                                                                  fontSize: 18,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .normal),
+                                                            ),
+                                                            Padding(
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .fromLTRB(
+                                                                          0,
+                                                                          20,
+                                                                          0,
+                                                                          20),
+                                                              child: Text(
+                                                                outputDifficultyLevel,
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .black,
+                                                                    fontSize:
+                                                                        25,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold),
+                                                              ),
+                                                            ),
+                                                            Text(
+                                                              'you have been assigned suitable course',
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .black,
+                                                                  fontSize: 18,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .normal),
+                                                            ),
+                                                            Padding(
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .fromLTRB(
+                                                                          0,
+                                                                          50,
+                                                                          0,
+                                                                          0),
+                                                              child: TextButton(
+                                                                  onPressed:
+                                                                      () {
+                                                                    Get.close(
+                                                                        3);
+                                                                  },
+                                                                  child: Text(
+                                                                    'Go Back',
+                                                                    style: TextStyle(
+                                                                        color: Colors
+                                                                            .black,
+                                                                        fontSize:
+                                                                            20,
+                                                                        fontWeight:
+                                                                            FontWeight.bold),
+                                                                  )),
+                                                            )
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  onWillPop: () async {
+                                                    return false;
+                                                  });
+                                            })),
+                                        enableDrag: false,
+                                        isScrollControlled: true,
+                                        isDismissible: false);
+                                  }).onError((error, stackTrace) {
+                                    EasyLoading.dismiss();
+                                    Fluttertoast.showToast(
+                                        msg: 'Error: $error',
+                                        toastLength: Toast.LENGTH_SHORT,
+                                        gravity: ToastGravity.BOTTOM,
+                                        timeInSecForIosWeb: 1,
+                                        backgroundColor: Colors.grey,
+                                        textColor: Colors.black,
+                                        fontSize: 16.0);
+                                  });
+                                }).onError((error, stackTrace) {
+                                  Fluttertoast.showToast(
+                                      msg: 'Error: $error',
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.BOTTOM,
+                                      timeInSecForIosWeb: 1,
+                                      backgroundColor: Colors.grey,
+                                      textColor: Colors.black,
+                                      fontSize: 16.0);
+                                  EasyLoading.dismiss();
+                                });
                               });
                               EasyLoading.dismiss();
                             });
-
-                            // EasyLoading.show();
-                            // studentProfiles.add({
-                            //   'age': selectedAge,
-                            //   'gender': selectedGender,
-                            //   'ethnicity': selectedEthncity,
-                            //   'degree': selectedDegree,
-                            //   'employment': selectedEmployment,
-                            //   'residency': selectedResidency,
-                            //   'major': selectedMajor,
-                            //   'country': selectedCountry,
-                            //   'oLevelPercentage': oLevelPercentage.text,
-                            //   'aLevelPercentage': aLevelPercentage.text,
-                            //   'bachelorsCGPA': bachelorsCGPA.text,
-                            //   'aLevelSubject': aLevelSubject.text,
-                            //   'oLevelSubject': oLevelSubject.text,
-                            //   'bachelorsSubject1': bacherlorsSubject1.text,
-                            //   'bachelorsSubject2': bacherlorsSubject2.text,
-                            //   'bachelorsSubject3': bacherlorsSubject3.text,
-                            //   'createdOn': DateTime.now(),
-                            //   'referenceDocument': parentDocument,
-                            //   'studentName': globalUserName,
-                            // }).then((value) {
-                            //   EasyLoading.dismiss();
-                            //   var fToast = FToast();
-                            //   fToast.init(context);
-                            //   fToast.showToast(
-                            //       child: getToast(
-                            //           JelloIn(
-                            //               child: Icon(FontAwesomeIcons.check)),
-                            //           'Form Submitted Successfully'));
-                            //   joinedCourses
-                            //       .doc(parentDocument)
-                            //       .update({'formFilled': true}).then((value) {
-                            //     Get.close(1);
-                            //     //Get.to(CourseOverView);
-                            //   });
-                            // }).onError((error, stackTrace) {
-                            //   Fluttertoast.showToast(
-                            //       msg: 'Error: ' + error.toString(),
-                            //       toastLength: Toast.LENGTH_SHORT,
-                            //       gravity: ToastGravity.BOTTOM,
-                            //       timeInSecForIosWeb: 1,
-                            //       backgroundColor: Colors.grey,
-                            //       textColor: Colors.black,
-                            //       fontSize: 16.0);
-                            //   EasyLoading.dismiss();
-                            // });
                           },
                           child: Row(
                             mainAxisSize: MainAxisSize.min,

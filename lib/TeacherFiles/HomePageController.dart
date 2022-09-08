@@ -71,7 +71,9 @@ class TeacherHomePageController extends GetxController {
     var definedCoursesListTile = [];
 
     definedCourses
-        .where('startDate', isGreaterThan: DateTime.now())
+        .where('startDate',
+            isGreaterThanOrEqualTo: DateTime(DateTime.now().year,
+                DateTime.now().month, DateTime.now().day, 0))
         .get()
         .then((value) {
       for (var element in value.docs) {

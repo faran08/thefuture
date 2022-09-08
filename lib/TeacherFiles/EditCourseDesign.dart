@@ -89,15 +89,15 @@ class EditDesignCourse extends StatelessWidget {
       Map temp = definedCourseData;
       if (date.day ==
           DateTime.fromMillisecondsSinceEpoch(
-                  (temp['startDate'] as Timestamp).millisecondsSinceEpoch)
-              .day) {
-        return 'Course Start';
-      } else if (date.day ==
-          DateTime.fromMillisecondsSinceEpoch(
                   (temp['firstSessionalDate'] as Timestamp)
                       .millisecondsSinceEpoch)
               .day) {
         return 'First Sessional';
+      } else if (date.day ==
+          DateTime.fromMillisecondsSinceEpoch(
+                  (temp['startDate'] as Timestamp).millisecondsSinceEpoch)
+              .day) {
+        return 'Course Start';
       } else if (date.day ==
           DateTime.fromMillisecondsSinceEpoch(
                   (temp['midTermDate'] as Timestamp).millisecondsSinceEpoch)
@@ -188,7 +188,7 @@ class EditDesignCourse extends StatelessWidget {
                                             EasyLoading.dismiss();
                                             teacherHomePageController
                                                 .getJoinedCourses();
-                                            Get.close(2);
+                                            Get.close(3);
                                             teacherHomePageController.update();
                                           }).onError((error, stackTrace) {
                                             EasyLoading.dismiss();
@@ -231,12 +231,12 @@ class EditDesignCourse extends StatelessWidget {
                       ))
                   : Center(
                       child: Padding(
-                        padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
-                        child: Text(
-                          'Published',
-                          style: TextStyle(color: textColor, fontSize: 20),
-                        ),
-                      ),
+                          padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                          child: Icon(
+                            Icons.done_outline_rounded,
+                            size: 25,
+                            color: Colors.green.shade800,
+                          )),
                     )
               : TextButton(
                   onPressed: () {
