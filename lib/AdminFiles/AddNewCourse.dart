@@ -185,7 +185,7 @@ class AddNewCourse extends StatelessWidget {
                   Padding(
                     padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
                     child: Text(
-                      'First Sessional Date',
+                      'CW - 1',
                       style: GoogleFonts.poppins(
                           color: textColor,
                           fontWeight: FontWeight.bold,
@@ -291,7 +291,7 @@ class AddNewCourse extends StatelessWidget {
                   Padding(
                     padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
                     child: Text(
-                      'Second Sessional Date',
+                      'CW - 2',
                       style: GoogleFonts.poppins(
                           color: textColor,
                           fontWeight: FontWeight.bold,

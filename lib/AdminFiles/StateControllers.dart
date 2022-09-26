@@ -41,6 +41,83 @@ class AdminStateControllers extends GetxController {
         selectedListItems.add(SelectedListItem(
             false, (element.data() as Map)['subjectName'].toString()));
         allSubjectsListTile.add(ListTile(
+          onTap: () {
+            Get.bottomSheet(BottomSheet(
+                onClosing: () {},
+                builder: (context) {
+                  return Scaffold(
+                    backgroundColor: backGroundColor,
+                    body: Padding(
+                      padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                      child: Column(
+                        children: [
+                          TextButton(
+                              onPressed: () {
+                                Get.defaultDialog(
+                                  title: 'Warning',
+                                  backgroundColor: backGroundColor,
+                                  textCancel: 'No',
+                                  textConfirm: 'Yes',
+                                  buttonColor: Colors.white,
+                                  cancelTextColor: textColor,
+                                  confirmTextColor: textColor,
+                                  middleText:
+                                      'Are you sure you want to delete?',
+                                  onConfirm: () {
+                                    subjects
+                                        .doc(element.id)
+                                        .delete()
+                                        .then((value) {
+                                      update();
+                                      Get.close(2);
+                                    });
+                                  },
+                                  onCancel: () {
+                                    Get.close(1);
+                                  },
+                                );
+                              },
+                              style: TextButton.styleFrom(
+                                  backgroundColor: Colors.red.shade50,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10))),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
+                                    child: Text(
+                                      'Delete',
+                                      style: GoogleFonts.poppins(
+                                          color: textColor,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  )
+                                ],
+                              ))
+                        ],
+                      ),
+                    ),
+                    appBar: AppBar(
+                      leading: Container(),
+                      backgroundColor: backGroundColor,
+                      elevation: 0,
+                      centerTitle: true,
+                      title: Text(
+                        'Options',
+                        style: TextStyle(
+                            color: textColor,
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  );
+                }));
+          },
           title: Text(
             (element.data() as Map)['subjectName'],
             style: GoogleFonts.poppins(

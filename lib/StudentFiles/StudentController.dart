@@ -218,7 +218,7 @@ class StudentController extends GetxController {
                                             padding: const EdgeInsets.fromLTRB(
                                                 10, 0, 0, 0),
                                             child: Text(
-                                              'First Sessional Date',
+                                              'CW - 1',
                                               style: GoogleFonts.poppins(
                                                   color: textColor
                                                       .withOpacity(0.5),
@@ -306,7 +306,7 @@ class StudentController extends GetxController {
                                             padding: const EdgeInsets.fromLTRB(
                                                 10, 0, 0, 0),
                                             child: Text(
-                                              'Second Sessional Date',
+                                              'CW - 2',
                                               style: GoogleFonts.poppins(
                                                   color: textColor
                                                       .withOpacity(0.5),
@@ -475,8 +475,6 @@ class StudentController extends GetxController {
                                                                 }
                                                                 if (ruleBased
                                                                     .isNotEmpty) {
-                                                                  EasyLoading
-                                                                      .show();
                                                                   //Get Confirmation For Rule Based//
                                                                   getDialog(
                                                                       context,

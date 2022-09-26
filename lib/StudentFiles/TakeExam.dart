@@ -12,6 +12,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:select_card/select_card.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:thefuture/globals.dart';
 import 'package:tflite_flutter/tflite_flutter.dart' as tfl;
 
@@ -58,6 +59,33 @@ class TakeExam extends StatelessWidget {
         }
       },
     );
+  }
+
+  List<ChartData> getChartDataForStudent(
+      List<Map<dynamic, dynamic>> inputData) {
+    Map dataList = {};
+    List<ChartData> chartData = [];
+    double totalQuestions = inputData.length.toDouble();
+    for (var element in inputData) {
+      if (element['correctAnswer'] == element['userAnswer']) {
+        for (var element in element['tags'] as List) {
+          if (!dataList.containsKey(element)) {
+            dataList[element] = 1;
+          } else {
+            dataList[element]++;
+          }
+        }
+      }
+    }
+    int i = 0;
+    for (var element in dataList.entries) {
+      chartData.add(ChartData(
+          element.key,
+          (double.parse(element.value.toString()) / totalQuestions) * 100,
+          getNumberedColor(i)));
+      i++;
+    }
+    return chartData;
   }
 
   void savePreExamResults() {
@@ -189,6 +217,7 @@ class TakeExam extends StatelessWidget {
         'tags': allQuestions.docs[i]['tags'],
         'assetType': allQuestions.docs[i]['asset_Type']
       });
+      //Calculate individual type marks and total marks
       if (allQuestions.docs[i]['correctAnswer'] == answersToQuestions[i]) {
         totalMarks++;
         if (allQuestions.docs[i]['asset_Type'] == 'Article Link') {
@@ -217,115 +246,280 @@ class TakeExam extends StatelessWidget {
                 ((video_obtained / video_total) * 100).toDouble(),
               ]
             ], value)
-                .then((value) {
+                .then((learningStyle) {
               Fluttertoast.showToast(
-                  msg: decodeLearningStyle(value[0][0]).toString(),
+                  msg: decodeLearningStyle(learningStyle[0][0]).toString(),
                   toastLength: Toast.LENGTH_SHORT,
                   gravity: ToastGravity.BOTTOM,
                   timeInSecForIosWeb: 1,
                   backgroundColor: Colors.grey,
                   textColor: Colors.black,
                   fontSize: 16.0);
-            })
-          });
-      EasyLoading.dismiss();
-      Get.close(2);
-      Get.bottomSheet(
-          BottomSheet(
-              enableDrag: false,
-              onClosing: () {},
-              builder: (context) {
-                return SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.95,
-                  child: Scaffold(
-                    backgroundColor: backGroundColor,
-                    appBar: AppBar(
-                      backgroundColor: backGroundColor,
-                      leading: Container(),
-                      leadingWidth: 0,
-                      elevation: 0,
-                      centerTitle: true,
-                      title: Text(
-                        'Result',
-                        style: TextStyle(color: Colors.red, fontSize: 25),
-                      ),
-                    ),
-                    body: Padding(
-                      padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                      child: Column(
-                        children: [
-                          Column(
-                            children: [
-                              Text(
-                                'You have scored',
-                                style: GoogleFonts.openSans(
-                                  color: textColor,
-                                  fontSize: 18,
-                                ),
-                                textAlign: TextAlign.justify,
+              examResults.doc(examResultID).update({
+                'learningStyle':
+                    decodeLearningStyle(learningStyle[0][0]).toString(),
+              });
+              EasyLoading.dismiss();
+              Get.close(2);
+              List<ChartData> chartData =
+                  getChartDataForStudent(saveQuestionsMap);
+              Get.bottomSheet(
+                  BottomSheet(
+                      onClosing: () {},
+                      builder: ((context) {
+                        return SizedBox(
+                          height: Get.height * 0.95,
+                          child: Scaffold(
+                            backgroundColor: backGroundColor,
+                            appBar: AppBar(
+                              leading: Container(),
+                              backgroundColor: backGroundColor,
+                              elevation: 0,
+                              centerTitle: true,
+                              title: Text(
+                                'Exam Result',
+                                style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 25,
+                                    fontWeight: FontWeight.bold),
                               ),
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                                child: Text(
-                                  totalMarks.toString() +
-                                      ' / ' +
-                                      allQuestions.docs.length.toString(),
-                                  style: GoogleFonts.openSans(
-                                      color: textColor,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold),
-                                  textAlign: TextAlign.justify,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
-                            child: TextButton(
-                                style: TextButton.styleFrom(
-                                    backgroundColor: buttonColor,
-                                    elevation: 2,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
-                                    shadowColor: backGroundColor,
-                                    padding:
-                                        EdgeInsets.fromLTRB(10, 10, 10, 10)),
-                                onPressed: () {
-                                  Get.close(1);
-                                },
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
+                            ),
+                            body: SingleChildScrollView(
+                              child: Center(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
+                                    Icon(
+                                      Icons.done_all_rounded,
+                                      color: Colors.green,
+                                      size: 75,
+                                    ),
                                     Padding(
-                                      padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                                      child: Icon(
-                                        Icons.done_outline_rounded,
-                                        color: Colors.green,
-                                        size: 30,
+                                      padding:
+                                          EdgeInsets.fromLTRB(0, 20, 0, 20),
+                                      child: Text(
+                                        'Your learning style identified',
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.normal),
                                       ),
                                     ),
                                     Padding(
                                       padding:
-                                          EdgeInsets.fromLTRB(20, 0, 20, 0),
-                                      child: AutoSizeText(
-                                        'OK',
-                                        minFontSize: 20,
-                                        style: GoogleFonts.poppins(
-                                            color: textColor,
-                                            fontWeight: FontWeight.w600),
+                                          EdgeInsets.fromLTRB(0, 20, 0, 20),
+                                      child: Text(
+                                        decodeLearningStyle(learningStyle[0][0])
+                                            .toString(),
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 25,
+                                            fontWeight: FontWeight.bold),
                                       ),
+                                    ),
+                                    Text(
+                                      'You have scored',
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.normal),
+                                    ),
+                                    Padding(
+                                        padding:
+                                            EdgeInsets.fromLTRB(0, 10, 0, 0),
+                                        child: Text(
+                                          totalMarks.toString() +
+                                              ' / ' +
+                                              allQuestions.docs.length
+                                                  .toString(),
+                                          style: GoogleFonts.openSans(
+                                              color: textColor,
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold),
+                                          textAlign: TextAlign.justify,
+                                        )),
+                                    Text(
+                                      'Subject Wise Distribution',
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.normal),
+                                    ),
+                                    Padding(
+                                      padding:
+                                          EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                      child: SizedBox(
+                                        width:
+                                            MediaQuery.of(context).size.width,
+                                        child: SfCircularChart(
+                                          legend: Legend(
+                                              alignment: ChartAlignment.center,
+                                              position: LegendPosition.bottom,
+                                              orientation: LegendItemOrientation
+                                                  .horizontal,
+                                              isVisible: true),
+                                          series: <CircularSeries>[
+                                            PieSeries<ChartData, String>(
+                                                radius: (MediaQuery.of(context).size.width * 0.25)
+                                                    .toString(),
+                                                strokeColor: textColor,
+                                                strokeWidth: 0,
+                                                dataLabelSettings: DataLabelSettings(
+                                                    isVisible: true,
+                                                    textStyle: TextStyle(
+                                                        color: textColor,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        fontSize: 12),
+                                                    labelIntersectAction:
+                                                        LabelIntersectAction
+                                                            .shift,
+                                                    labelPosition:
+                                                        ChartDataLabelPosition
+                                                            .outside,
+                                                    connectorLineSettings:
+                                                        ConnectorLineSettings(
+                                                            type: ConnectorType
+                                                                .curve,
+                                                            length: '10%')),
+                                                dataSource: chartData,
+                                                pointColorMapper:
+                                                    (ChartData data, _) =>
+                                                        data.color,
+                                                xValueMapper: (ChartData data, _) =>
+                                                    data.x,
+                                                yValueMapper: (ChartData data, _) =>
+                                                    data.y,
+                                                dataLabelMapper: (ChartData data, _) =>
+                                                    '${data.y}%'),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.fromLTRB(0, 50, 0, 0),
+                                      child: TextButton(
+                                          onPressed: () {
+                                            Get.close(3);
+                                          },
+                                          child: Text(
+                                            'OK',
+                                            style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold),
+                                          )),
                                     )
                                   ],
-                                )),
+                                ),
+                              ),
+                            ),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              }),
-          isScrollControlled: true);
+                        );
+                      }),
+                      enableDrag: false),
+                  enableDrag: false,
+                  isScrollControlled: true);
+            })
+          });
+
+      // Get.bottomSheet(
+      //     BottomSheet(
+      //         enableDrag: false,
+      //         onClosing: () {},
+      //         builder: (context) {
+      //           return SizedBox(
+      //             height: MediaQuery.of(context).size.height * 0.95,
+      //             child: Scaffold(
+      //               backgroundColor: backGroundColor,
+      //               appBar: AppBar(
+      //                 backgroundColor: backGroundColor,
+      //                 leading: Container(),
+      //                 leadingWidth: 0,
+      //                 elevation: 0,
+      //                 centerTitle: true,
+      //                 title: Text(
+      //                   'Result',
+      //                   style: TextStyle(color: Colors.red, fontSize: 25),
+      //                 ),
+      //               ),
+      //               body: Padding(
+      //                 padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+      //                 child: Column(
+      //                   children: [
+      //                     Column(
+      //                       children: [
+      //                         Text(
+      //                           'You have scored',
+      //                           style: GoogleFonts.openSans(
+      //                             color: textColor,
+      //                             fontSize: 18,
+      //                           ),
+      //                           textAlign: TextAlign.justify,
+      //                         ),
+      //                         Padding(
+      //                           padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+      //                           child: Text(
+      //                             totalMarks.toString() +
+      //                                 ' / ' +
+      //                                 allQuestions.docs.length.toString(),
+      //                             style: GoogleFonts.openSans(
+      //                                 color: textColor,
+      //                                 fontSize: 18,
+      //                                 fontWeight: FontWeight.bold),
+      //                             textAlign: TextAlign.justify,
+      //                           ),
+      //                         ),
+      //                       ],
+      //                     ),
+      //                     Padding(
+      //                       padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
+      //                       child: TextButton(
+      //                           style: TextButton.styleFrom(
+      //                               backgroundColor: buttonColor,
+      //                               elevation: 2,
+      //                               shape: RoundedRectangleBorder(
+      //                                   borderRadius:
+      //                                       BorderRadius.circular(10)),
+      //                               shadowColor: backGroundColor,
+      //                               padding:
+      //                                   EdgeInsets.fromLTRB(10, 10, 10, 10)),
+      //                           onPressed: () {
+      //                             Get.close(1);
+      //                           },
+      //                           child: Row(
+      //                             mainAxisSize: MainAxisSize.min,
+      //                             children: [
+      //                               Padding(
+      //                                 padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+      //                                 child: Icon(
+      //                                   Icons.done_outline_rounded,
+      //                                   color: Colors.green,
+      //                                   size: 30,
+      //                                 ),
+      //                               ),
+      //                               Padding(
+      //                                 padding:
+      //                                     EdgeInsets.fromLTRB(20, 0, 20, 0),
+      //                                 child: AutoSizeText(
+      //                                   'OK',
+      //                                   minFontSize: 20,
+      //                                   style: GoogleFonts.poppins(
+      //                                       color: textColor,
+      //                                       fontWeight: FontWeight.w600),
+      //                                 ),
+      //                               )
+      //                             ],
+      //                           )),
+      //                     ),
+      //                   ],
+      //                 ),
+      //               ),
+      //             ),
+      //           );
+      //         }),
+      //     isScrollControlled: true);
     });
   }
 
@@ -759,4 +953,11 @@ class TakeExam extends StatelessWidget {
           return false;
         });
   }
+}
+
+class ChartData {
+  ChartData(this.x, this.y, this.color);
+  final String x;
+  final double y;
+  final Color color;
 }

@@ -56,14 +56,19 @@ class TeacherHomePageController extends GetxController {
         .get();
 
     if (resultSubjects.docs.isNotEmpty) {
-      for (var element
-          in (resultSubjects.docs.first.data() as Map)['subTags']) {
-        tempList.add(element);
+      if ((resultSubjects.docs.first.data() as Map).containsKey('subTags')) {
+        if (((resultSubjects.docs.first.data() as Map)['subTags'] as List)
+            .isNotEmpty) {
+          for (var element
+              in (resultSubjects.docs.first.data() as Map)['subTags']) {
+            tempList.add(element);
+          }
+          for (var element in tempList) {
+            tagsList.add(element);
+          }
+          update();
+        }
       }
-      for (var element in tempList) {
-        tagsList.add(element);
-      }
-      update();
     }
   }
 
@@ -248,7 +253,7 @@ class TeacherHomePageController extends GetxController {
                                             padding: EdgeInsets.fromLTRB(
                                                 10, 0, 0, 0),
                                             child: Text(
-                                              'First Sessional Date',
+                                              'CW - 1',
                                               style: GoogleFonts.poppins(
                                                   color: textColor
                                                       .withOpacity(0.5),
@@ -336,7 +341,7 @@ class TeacherHomePageController extends GetxController {
                                             padding: EdgeInsets.fromLTRB(
                                                 10, 0, 0, 0),
                                             child: Text(
-                                              'Second Sessional Date',
+                                              'CW - 2',
                                               style: GoogleFonts.poppins(
                                                   color: textColor
                                                       .withOpacity(0.5),

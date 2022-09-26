@@ -137,6 +137,17 @@ class CourseOverView extends StatelessWidget {
         DateTime.now().year, DateTime.now().month, DateTime.now().day, 0);
   }
 
+  bool checkInBetweenDates(DateTime checkDate, DateTime currentDate) {
+    if (checkDate.isAfter(DateTime(
+            currentDate.year, currentDate.month, currentDate.day, 0)) &&
+        checkDate.isBefore(DateTime(
+            currentDate.year, currentDate.month, currentDate.day, 23, 59))) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   Widget getContentData(DateTime inputDate) {
     int articleURL = 0;
     int audioURL = 0;
@@ -144,11 +155,9 @@ class CourseOverView extends StatelessWidget {
     int examQuestions = 0;
 
     for (var element in studentController.courseOverView_DesignCourse.docs) {
-      if (DateTime.fromMillisecondsSinceEpoch(
-                  ((element.data() as Map)['dateForWhichURL'] as Timestamp)
-                      .millisecondsSinceEpoch)
-              .day ==
-          inputDate.day) {
+      if (checkInBetweenDates(
+          ((element.data() as Map)['dateForWhichURL'] as Timestamp).toDate(),
+          inputDate)) {
         if ((element.data() as Map)['entryType'] == 'Article') {
           articleURL++;
         } else if (((element.data() as Map)['entryType'] == 'Video')) {
@@ -544,7 +553,7 @@ class CourseOverView extends StatelessWidget {
                                                               .fromLTRB(
                                                           10, 0, 0, 0),
                                                       child: Text(
-                                                        'First Sessional Date',
+                                                        'CW - 1',
                                                         style:
                                                             GoogleFonts.poppins(
                                                                 color: textColor
@@ -659,7 +668,7 @@ class CourseOverView extends StatelessWidget {
                                                               .fromLTRB(
                                                           10, 0, 0, 0),
                                                       child: Text(
-                                                        'Second Sessional Date',
+                                                        'CW - 2',
                                                         style:
                                                             GoogleFonts.poppins(
                                                                 color: textColor

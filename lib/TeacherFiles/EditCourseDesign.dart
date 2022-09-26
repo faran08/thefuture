@@ -32,12 +32,12 @@ class EditDesignCourse extends StatelessWidget {
   List<Map> customDefinedData = [];
 
   int getNumberOfDays() {
-    return DateTime.fromMillisecondsSinceEpoch(
-            ((documentData.data() as Map)['finalExamDate'] as Timestamp)
-                .millisecondsSinceEpoch)
-        .difference(DateTime.fromMillisecondsSinceEpoch(
-            ((documentData.data() as Map)['startDate'] as Timestamp)
-                .millisecondsSinceEpoch))
+    DateTime finalExamDate =
+        ((documentData.data() as Map)['finalExamDate'] as Timestamp).toDate();
+    DateTime startDate =
+        ((documentData.data() as Map)['startDate'] as Timestamp).toDate();
+    return DateTime(finalExamDate.year, finalExamDate.month, finalExamDate.day)
+        .difference(DateTime(startDate.year, startDate.month, startDate.day))
         .inDays;
   }
 
@@ -50,14 +50,15 @@ class EditDesignCourse extends StatelessWidget {
     });
   }
 
-  int getNumberOfRecordAvailable(int date) {
+  int getNumberOfRecordAvailable(DateTime date) {
     int returnCount = 0;
     for (var element in customDefinedData) {
-      if (DateTime.fromMillisecondsSinceEpoch(
-                  (element['data']['dateForWhichURL'] as Timestamp)
-                      .millisecondsSinceEpoch)
-              .day ==
-          date) {
+      if ((element['data']['dateForWhichURL'] as Timestamp)
+              .toDate()
+              .isAfter(DateTime(date.year, date.month, date.day, 0)) &&
+          (element['data']['dateForWhichURL'] as Timestamp)
+              .toDate()
+              .isBefore(DateTime(date.year, date.month, date.day, 23, 59))) {
         returnCount++;
       }
     }
@@ -84,35 +85,36 @@ class EditDesignCourse extends StatelessWidget {
     });
   }
 
+  bool checkInBetweenDates(DateTime checkDate, DateTime currentDate) {
+    if (checkDate.isAfter(DateTime(
+            currentDate.year, currentDate.month, currentDate.day, 0)) &&
+        checkDate.isBefore(DateTime(
+            currentDate.year, currentDate.month, currentDate.day, 23, 59))) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   String getCurrentDayActivity(DateTime date) {
     if (definedCourseData.isNotEmpty) {
       Map temp = definedCourseData;
-      if (date.day ==
-          DateTime.fromMillisecondsSinceEpoch(
-                  (temp['firstSessionalDate'] as Timestamp)
-                      .millisecondsSinceEpoch)
-              .day) {
+      DateTime firstSessionalDate =
+          (temp['firstSessionalDate'] as Timestamp).toDate();
+      DateTime startDate = (temp['startDate'] as Timestamp).toDate();
+      DateTime midTermDate = (temp['midTermDate'] as Timestamp).toDate();
+      DateTime secondSessionalDate =
+          (temp['secondSessionalDate'] as Timestamp).toDate();
+      DateTime finalExamDate = (temp['finalExamDate'] as Timestamp).toDate();
+      if (checkInBetweenDates(date, firstSessionalDate)) {
         return 'First Sessional';
-      } else if (date.day ==
-          DateTime.fromMillisecondsSinceEpoch(
-                  (temp['startDate'] as Timestamp).millisecondsSinceEpoch)
-              .day) {
+      } else if (checkInBetweenDates(date, startDate)) {
         return 'Course Start';
-      } else if (date.day ==
-          DateTime.fromMillisecondsSinceEpoch(
-                  (temp['midTermDate'] as Timestamp).millisecondsSinceEpoch)
-              .day) {
+      } else if (checkInBetweenDates(date, midTermDate)) {
         return 'Mid Term';
-      } else if (date.day ==
-          DateTime.fromMillisecondsSinceEpoch(
-                  (temp['secondSessionalDate'] as Timestamp)
-                      .millisecondsSinceEpoch)
-              .day) {
+      } else if (checkInBetweenDates(date, secondSessionalDate)) {
         return 'Second Sessional';
-      } else if (date.day ==
-          DateTime.fromMillisecondsSinceEpoch(
-                  (temp['finalExamDate'] as Timestamp).millisecondsSinceEpoch)
-              .day) {
+      } else if (checkInBetweenDates(date, finalExamDate)) {
         return 'Final Exam';
       } else if (recordAvailable.contains(date.day)) {
         return 'Data Entry';
@@ -188,8 +190,8 @@ class EditDesignCourse extends StatelessWidget {
                                             EasyLoading.dismiss();
                                             teacherHomePageController
                                                 .getJoinedCourses();
-                                            Get.close(3);
                                             teacherHomePageController.update();
+                                            Get.close(2);
                                           }).onError((error, stackTrace) {
                                             EasyLoading.dismiss();
                                             Fluttertoast.showToast(
@@ -345,14 +347,13 @@ class EditDesignCourse extends StatelessWidget {
               return Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  color: DateTime.fromMillisecondsSinceEpoch(
-                              ((documentData.data() as Map)['startDate']
-                                      as Timestamp)
-                                  .millisecondsSinceEpoch)
-                          .add(Duration(days: index))
-                          .isBefore(DateTime.now())
-                      ? Colors.red.shade300
-                      : Colors.white,
+                  color:
+                      ((documentData.data() as Map)['startDate'] as Timestamp)
+                              .toDate()
+                              .add(Duration(days: index))
+                              .isBefore(DateTime.now())
+                          ? Colors.red.shade300
+                          : Colors.white,
                 ),
                 padding: EdgeInsets.all(10),
                 child: InkWell(
@@ -420,13 +421,10 @@ class EditDesignCourse extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            DateFormat('dd MMM').format(
-                                DateTime.fromMillisecondsSinceEpoch(
-                                        ((documentData.data()
-                                                    as Map)['startDate']
-                                                as Timestamp)
-                                            .millisecondsSinceEpoch)
-                                    .add(Duration(days: index))),
+                            DateFormat('dd MMM').format(((documentData.data()
+                                    as Map)['startDate'] as Timestamp)
+                                .toDate()
+                                .add(Duration(days: index))),
                             style: GoogleFonts.poppins(
                                 color: textColor,
                                 fontSize: 20,
@@ -438,14 +436,10 @@ class EditDesignCourse extends StatelessWidget {
                                 color: Colors.grey.shade300),
                             padding: EdgeInsets.all(10),
                             child: Text(
-                              getNumberOfRecordAvailable(
-                                      DateTime.fromMillisecondsSinceEpoch(
-                                              ((documentData.data()
-                                                          as Map)['startDate']
-                                                      as Timestamp)
-                                                  .millisecondsSinceEpoch)
-                                          .add(Duration(days: index))
-                                          .day)
+                              getNumberOfRecordAvailable(((documentData.data()
+                                          as Map)['startDate'] as Timestamp)
+                                      .toDate()
+                                      .add(Duration(days: index)))
                                   .toString(),
                               style: GoogleFonts.poppins(
                                   color: textColor,
@@ -455,13 +449,10 @@ class EditDesignCourse extends StatelessWidget {
                           )
                         ],
                       ),
-                      !(getCurrentDayActivity(
-                                          DateTime.fromMillisecondsSinceEpoch(
-                                                  ((documentData.data() as Map)[
-                                                              'startDate']
-                                                          as Timestamp)
-                                                      .millisecondsSinceEpoch)
-                                              .add(Duration(days: index)))
+                      !(getCurrentDayActivity(((documentData.data()
+                                              as Map)['startDate'] as Timestamp)
+                                          .toDate()
+                                          .add(Duration(days: index)))
                                       .toString() ==
                                   'Data Entry' ||
                               getCurrentDayActivity(
